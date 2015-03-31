@@ -26,11 +26,3 @@ function Player() {
 	    this.y = 50;
     }
 }
-
-
-// Static variables
-Player.RADIUS = 30;
-Player.WEIGHT = 140;
-
-// For node.js require
-global.Player = Player;

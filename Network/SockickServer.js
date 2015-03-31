@@ -3,18 +3,24 @@
 // enforce strict/clean programming
 "use strict"; 
 
-var LIB_PATH = "./";
+var LIB_PATH = "./../";
+
+require(LIB_PATH + "Sockick.js");
+require(LIB_PATH + "node_modules/matter-js/build/matter-0.8.0.js");
 
 function SockickServer() {
     // Private Variables
     var port;         // Game port 
     var count;        // Keeps track how many people are connected to server 
     var nextPID;      // PID to assign to next connected player (i.e. which player slot is open) 
-    var gameInterval; // Interval variable used for gameLoop 
     var ball;         // the game ball 
     var sockets;      // Associative array for sockets, indexed via player ID
     var players;      // Associative array for players, indexed via socket ID
-    var p1, p2;       // Player 1 and 2.
+    var p1, p2, p3, p4;       // Players
+
+    var Engine = Matter.Engine;
+    var World = Matter.World;
+    var Bodies = Matter.Bodies;
 
     /*
      * private method: broadcast(msg)
@@ -44,38 +50,6 @@ function SockickServer() {
     }
 
     /*
-     * private method: movePaddle(player, x, time)
-     *
-     * move the paddle owned by player at connection ID connId to
-     * position x, if x is received in order.
-     */
-    var movePaddle = function (connId, x, time) {
-        if (players[connId] !== undefined) {
-            if (time > players[connId].lastUpdated) {
-                players[connId].lastUpdated = time;
-                players[connId].paddle.move(x);
-            }
-        }
-    }
-
-    /*
-     * private method: acceleratePaddle(player, vx, time)
-     * 
-     * accelerate the paddle owned by player at connection ID connId to
-     * velocity vx, if vx is received in order.
-     */
-    var acceleratePaddle = function (connId, vx, time) {
-        if (players[connId] !== undefined) {
-            if (time > players[connId].lastUpdated) {
-                players[connId].lastUpdated = time;
-                players[connId].paddle.accelerate(vx);
-            }
-        }
-    }
-
-
-
-    /*
      * private method: reset()
      *
      * Reset the game to its initial state.  Clean up
@@ -98,16 +72,20 @@ function SockickServer() {
      * Create and init the new player.
      */
     var newPlayer = function (conn) {
+        
         count ++;
+
         // 1st player is always top, 2nd player is always bottom
-        var watchPaddle = (nextPID === 1) ? "top" : "bottom";
-        var startPos = (nextPID === 1) ? Paddle.HEIGHT : Pong.HEIGHT;
+        var initialPosition = (nextPID === 1) ? "left" : "right";
+        var startPos = (nextPID === 1) ? 
+                        {x: Sockick.WIDTH / 4, y: Sockick.HEIGHT / 2} : 
+                        {x: 3 * Sockick.WIDTH / 4, y: Sockick.HEIGHT / 2};
 
         // Send message to new player (the current client)
-        unicast(conn, {type: "message", content:"You are Player " + nextPID + ". Your paddle is at the " + watchPaddle});
+        unicast(conn, {type: "message", content:"You are Player " + nextPID + ". Your position is at the " + initialPosition});
 
         // Create player object and insert into players with key = conn.id
-        players[conn.id] = new Player(conn.id, nextPID, startPos);
+        players[conn.id] = Bodies.rectangle(startPos.x, startPos.y, 80, 80);;
         sockets[nextPID] = conn;
 
         // Mark as player 1 or 2
@@ -115,6 +93,10 @@ function SockickServer() {
             p1 = players[conn.id];
         } else if (nextPID == 2) {
             p2 = players[conn.id];
+        } else if (nextPID == 3){
+            p3 = players[conn.id];
+        } else if (nextPID == 4){
+            p4 = players[conn.id];
         }
 
         // Updates the nextPID to issue (flip-flop between 1 and 2)
@@ -197,17 +179,17 @@ function SockickServer() {
     }
 
     var calculateBallSpeed = function(delay, currentTime) {
-        var distance = Pong.HEIGHT - 2*Paddle.HEIGHT - Ball.HEIGHT;
+        var distance = Sockick.HEIGHT - 2*Paddle.HEIGHT - Ball.HEIGHT;
         console.log(distance);
-        var t0 = Math.abs(distance/ball.vy/Pong.FRAME_RATE);
+        var t0 = Math.abs(distance/ball.vy/Sockick.FRAME_RATE);
         var t = t0 - delay/1000;
         console.log(t0 + " "+ ball.vx+" "+ball.vy );
        
         var vy1;
         if (ball.vy<0)
-            vy1 =  0-(distance/t/Pong.FRAME_RATE);
+            vy1 =  0-(distance/t/Sockick.FRAME_RATE);
         else
-            vy1 = distance/t/Pong.FRAME_RATE;
+            vy1 = distance/t/Sockick.FRAME_RATE;
         var vx1 = vy1*ball.vx/ball.vy;
         console.log(t + " "+ vx1+" "+vy1 );
 
@@ -245,8 +227,60 @@ function SockickServer() {
         } else {
             // Everything is a OK
             ball.startMoving();
-            gameInterval = setInterval(function() {gameLoop();}, 1000/Pong.FRAME_RATE);
+            gameInterval = setInterval(function() {gameLoop();}, 1000/Sockick.FRAME_RATE);
         }
+    }
+
+    var initializeGameEngine = function () {
+        // Matter.js module aliases
+
+        // create a Matter.js engine
+        var engine = Engine.create(document.body);
+        
+        engine.world.gravity = { x: 0, y: 0 };
+
+        var width = 400;
+        var height = 400;
+        var wall_thickness = 50;
+        var options =  { isStatic: true };
+
+        var wall_top = Bodies.rectangle(
+            wall_thickness, 
+            0,
+            width * 2, 
+            wall_thickness, 
+            options
+        );
+
+        var wall_bottom = Bodies.rectangle(
+            wall_thickness, 
+            height + wall_thickness, 
+            width * 2, 
+            wall_thickness, 
+            options
+        );
+
+        var wall_left = Bodies.rectangle(
+            0, 
+            wall_thickness, 
+            wall_thickness, 
+            height * 2, 
+            options
+        );
+
+        var wall_right = Bodies.rectangle(
+            width + wall_thickness, 
+            wall_thickness,
+            wall_thickness, 
+            height * 2, 
+            options
+        );
+
+        var ball = Bodies.circle(200, 100, 25, 25);
+
+        boxA.frictionAir = 0.0;
+        boxA.friction = 0.0;
+        ball.friction = 0.5;
     }
 
     /*
@@ -270,6 +304,8 @@ function SockickServer() {
             ball = new Ball();
             players = new Object;
             sockets = new Object;
+
+
             
             // Upon connection established from a client socket
             sock.on('connection', function (conn) {
@@ -351,25 +387,25 @@ function SockickServer() {
                 }); // conn.on("data"
             }); // socket.on("connection"
 
-            // Standard code to starts the Pong server and listen
+            // Standard code to starts the Sockick server and listen
             // for connection
             var app = express();
             var httpServer = http.createServer(app);
-            sock.installHandlers(httpServer, {prefix:'/pong'});
-            httpServer.listen(Pong.PORT, '0.0.0.0');
+            sock.installHandlers(httpServer, {prefix:'/Sockick'});
+            httpServer.listen(Sockick.PORT, '0.0.0.0');
             app.use(express.static(__dirname));
-            console.log("Server running on http://0.0.0.0:" + Pong.PORT + "\n")
-            console.log("Visit http://0.0.0.0:" + Pong.PORT + "/Pong.html in your " + 
+            console.log("Server running on http://0.0.0.0:" + Sockick.PORT + "\n")
+            console.log("Visit http://0.0.0.0:" + Sockick.PORT + "/Sockick.html in your " + 
                         "browser to start the game")
         } catch (e) {
-            console.log("Cannot listen to " + Pong.PORT);
+            console.log("Cannot listen to " + Sockick.PORT);
             console.log("Error: " + e);
         }
     }
 }
 
 // This will auto run after this script is loaded
-var gameServer = new PongServer();
+var gameServer = new SockickServer();
 gameServer.start();
 
 // vim:ts=4:sw=4:expandtab

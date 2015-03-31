@@ -10,6 +10,9 @@ var Sockick = {
 	FRAME_RATE : 25,			// frame rate of Sockick game
 	SERVER_NAME : "localhost"	// server name of Sockick game
 	//SERVER_NAME : "172.28.179.28"	// server name of Sockick game
+
+	PLAYER_RADIUS : 30;
+	PLAYER_WEIGHT : 140;
 }
 
 // For node.js require

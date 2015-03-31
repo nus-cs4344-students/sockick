@@ -1,27 +1,36 @@
+"use strict";
 function Player() {
 	this.x;
 	this.y;
-	this.skillCd;
-	this.isMoving;
 	this.vx;
 	this.vy;
-	this.speed;
 	this.weight;
-	this.isReversed;
-	this.isFreezed;
-	this.skill;
+	this.radius;
+	// this.isReversed;
+	// this.isFreezed;
+	var that = this;
+    this.vx = 0;
+    this.vy = 0;
+    this.x = 50;
+    this.y = 50;
+    this.radius = Player.RADIUS;
+    this.weight = Player.WEIGHT;
 
-	this.init = function(x, y, skill) {
-		this.x = x;
-		this.y = y;
-		this.skill = skill;
-		this.skillCd = 30;
-		this.isMoving = false;
-		this.vx = 0;
-		this.vy = 0;
-		this.speed = 0;
-		this.weight = 10;
-		this.isFreezed = false;
-		this.isReversed = false;
-	} 
+    /*
+     * priviledged method: reset()
+     */
+    this.reset = function(){
+        this.vx = 0;
+        this.vy = 0;
+        this.x = 50;
+	    this.y = 50;
+    }
 }
+
+
+// Static variables
+Player.RADIUS = 30;
+Player.WEIGHT = 140;
+
+// For node.js require
+global.Player = Player;

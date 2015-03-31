@@ -1,0 +1,18 @@
+{
+  "name": "SOCKICK",
+  "version": "0.0.0",
+  "description": "CS4344 Term Project",
+  "homepage": "https://github.com/nus-cs4344-students/sockick",
+  "author": {
+    "name": "Liu Tuo, Li Yan, Shizu, Qing Cheng"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nus-cs4344-students/sockick"
+  },
+  "dependencies": {
+    "express": "4.11.0",
+    "sockjs": "0.3.12",
+    "matter-js": "0.8.0"
+  }
+}

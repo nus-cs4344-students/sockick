@@ -15,5 +15,3 @@ var Sockick = {
 
 // For node.js require
 global.Sockick = Sockick;
-
-// vim:ts=4

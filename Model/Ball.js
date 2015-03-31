@@ -42,7 +42,7 @@ function Ball() {
 
 // Static variables
 Ball.RADIUS = 15;
-Ball.WEIGHT = 7;
+Ball.WEIGHT = 1;
 
 // For node.js require
 global.Ball = Ball;

@@ -6,6 +6,8 @@ function Render() {
 	this.text_score;
 	this.text_timeleft;
 	this.players = {};
+	this.my_id;
+	this.myLabel;
 	this.ballAnimation;
 
 	this.init = function() {
@@ -138,7 +140,7 @@ function Render() {
 		renderer.scoreBoard.update();
 	}
 
-	this.createPlayer = function(pid) {
+	this.createPlayer = function(pid, isMyself) {
 		var data = {
 			images: ["Assets/player2.png"],
 			frames: {
@@ -147,22 +149,31 @@ function Render() {
 				count: 28
 			},
 			animations: {
-				left: [0,6],
+				stay_left: 0,
+				stay_right: 7,
+				stay_up: 21,
+				stay_down: 14
+				left: [0, 6],
 				right: [7, 13],
-				down: [14,20],
-				up:[21,27],
-				left_stay: 6,
-				right_stay: 13,
-				down_stay: 14,
-				up_stay: 25
+				down: [14, 20],
+				up: [21, 27],
+				left_up: [0, 21, 1, 22, 2, 23, 3, 24, 4, 25, 5, 26, 6, 27],
+				left_down: [0, 14, 1, 15, 2, 16, 3, 17, 4, 18, 5, 19, 6, 20],
+				right_up: [7, 21, 8, 22, 9, 23, 10, 24, 11, 25, 12, 26, 13, 27],
+				right_down: [7, 14, 8, 15, 9, 16, 10, 17, 11, 18, 12, 19, 13, 20]
 			}
 		};
 		var spriteSheet = new createjs.SpriteSheet(data);
-		var playerAnimation = new createjs.Sprite(spriteSheet, "left_stay");
+		var playerAnimation = new createjs.Sprite(spriteSheet, "stay_left");
 		this.players[pid] = playerAnimation;
 		this.stage.addChild(playerAnimation);
-	}
 
+		if (isMyself) {
+			this.myLabel = new createjs.Text("Me", "8px Comic Sans MS", "#000000");
+			this.myLabel.x = playerAnimation.x + 50;
+			this.myLabel.y = playerAnimation.y + 10;
+		}
+	}
 	this.createBall = function() {
 		var data = {
 			images: ["Assets/ball.png"],
@@ -173,7 +184,7 @@ function Render() {
 			},
 			animations: {
 				stand: [0],
-				run: [0,6]
+				run: [0, 6]
 			}
 		};
 		var spriteSheet = new createjs.SpriteSheet(data);
@@ -183,6 +194,10 @@ function Render() {
 	this.updatePlayers = function(pid, x, y) {
 		this.players[pid].x = x;
 		this.players[pid].y = y;
+		if (pid == this.my_id) {
+			this.myLabel.x = x + 50;
+			this.myLabel.y = y + 10;
+		}
 	}
 
 	this.updateBall = function(x, y) {

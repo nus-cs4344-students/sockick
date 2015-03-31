@@ -51,7 +51,7 @@ function SockickClient() {
                 }
             }
         } catch (e) {
-            console.log("Failed to connect to " + "http://" + Pong.SERVER_NAME + ":" + Pong.PORT);
+            console.log("Failed to connect to " + "http://" + Sockick.SERVER_NAME + ":" + Sockick.PORT);
         }
     }
 
@@ -76,11 +76,10 @@ function SockickClient() {
      * Touch version of "mouse click" callback above.
      */
     var onTouchEnd = function(e) {
-        if (!ball.isMoving()) {
-            sendToServer({
-                type: "start"
-            });
-        }
+        sendToServer({
+            type: "direction_changed",
+            new_direction: "stop"
+        });
     }
 
 
@@ -94,28 +93,37 @@ function SockickClient() {
         39: right arrow
         */
         switch (e.keyCode) {
+            case 37:
+                { // Left
+                    sendToServer({
+                        type: "direction_changed",
+                        new_direction: "left"
+                    });
+                    break;
+                }
             case 38:
                 { // Up
-                    delay += 50;
-                    // Send event to server
                     sendToServer({
-                        type: "delay",
-                        delay: delay
+                        type: "direction_changed",
+                        new_direction: "up"
                     });
-                    showMessage("delay", "Delay to Server: " + delay + " ms");
+                    break;
+                }
+
+            case 39:
+                { // Right
+                    sendToServer({
+                        type: "direction_changed",
+                        new_direction: "right"
+                    });
                     break;
                 }
             case 40:
                 { // Down
-                    if (delay >= 50) {
-                        delay -= 50;
-                        // Send event to server
-                        sendToServer({
-                            type: "delay",
-                            delay: delay
-                        });
-                        showMessage("delay", "Delay to Server: " + delay + " ms");
-                    }
+                    sendToServer({
+                        type: "direction_changed",
+                        new_direction: "down"
+                    });
                     break;
                 }
         }

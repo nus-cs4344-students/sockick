@@ -24,7 +24,7 @@ function Ball() {
     this.y = Sockick.HEIGHT/2;
     this.velocityUpdated = false;
     this.angularVelocity = 0;
-    this.radius = Ball.RADIUS;
+    this.radius = Sockick.BALL_RADIUS;
     this.weight = Ball.WEIGHT;
 
     /*
@@ -41,7 +41,6 @@ function Ball() {
 }
 
 // Static variables
-Ball.RADIUS = 15;
 Ball.WEIGHT = 1;
 
 // For node.js require

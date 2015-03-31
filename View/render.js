@@ -15,22 +15,22 @@ function Render() {
 			var keyCode = evt.keyCode;
 			if (keyCode == 37) {
 				console.log("left");
-				renderer.animation.gotoAndPlay("left");
+				renderer.playerAnimation.gotoAndPlay("left");
 				return false;
 			}
 			if (keyCode == 38) {
 				console.log("up");
-				renderer.animation.gotoAndPlay("up");
+				renderer.playerAnimation.gotoAndPlay("up");
 				return false;
 			}
 			if (keyCode == 39) {
 				console.log("right");
-				renderer.animation.gotoAndPlay("right");
+				renderer.playerAnimation.gotoAndPlay("right");
 				return false;
 			}
 			if (keyCode == 40) {
 				console.log("down");
-				renderer.animation.gotoAndPlay("down");
+				renderer.playerAnimation.gotoAndPlay("down");
 				return false;
 			}
 		};

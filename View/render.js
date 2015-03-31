@@ -130,9 +130,17 @@ function Render() {
 	}
 	this.setScore = function(scoreLeft, scoreRight) {
 		this.text_score.text = scoreLeft+' : '+scoreRight;
+		var width = this.text_score.getMeasuredWidth();
+		this.text_score.x = 500-width/2;
+		
+	}
+	this.setTimeLeft = function(timeleft) {
+		if (timeleft.length == 4)
+			this.text_timeleft.text = "Time Left\n "+timeleft+" Min";
+		else
+			this.text_timeleft.text = "Time Left\n"+timeleft+" Min";
 		var textTimeWidth = this.text_timeleft.getMeasuredWidth();
 		this.text_timeleft.x = 1000-textTimeWidth/2;
-		
 	}
 
 	this.handleTick = function(event) {

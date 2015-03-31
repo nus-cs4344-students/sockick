@@ -34,7 +34,7 @@ function SockickClient() {
      */
     var initNetwork = function() {
         // Attempts to connect to game server
-        try {
+        //try {
             socket = new SockJS("http://" + Sockick.SERVER_NAME + ":" + Sockick.PORT + "/sockick");
             socket.onmessage = function(e) {
                 var message = JSON.parse(e.data);
@@ -47,17 +47,17 @@ function SockickClient() {
                         //TBD
                         ball.x = message.ball_position.x;
                         ball.y = message.ball_position.y;
-                        player1.x = message.player_positions[0].position.x;
-                        player1.y = message.player_positions[0].position.y;
+                        player1.x = message.player_positions[0].x;
+                        player1.y = message.player_positions[0].y;
                         render();
                         break;
                     default:
-                        appendMessage("serverMsg", "unhandled meesage type " + message.type);
+                        //appendMessage("serverMsg", "unhandled meesage type " + message.type);
                 }
             }
-        } catch (e) {
-            console.log("Failed to connect to " + "http://" + Sockick.SERVER_NAME + ":" + Sockick.PORT);
-        }
+        // } catch (e) {
+        //     console.log("Failed to connect to " + "http://" + Sockick.SERVER_NAME + ":" + Sockick.PORT);
+        // }
     }
 
     /*
@@ -154,7 +154,7 @@ function SockickClient() {
      */
     var render = function() {
         //TBD
-        renderer.updatePlayer(player1.x, player1.y);
+        renderer.updatePlayers(player1.pid, player1.x, player1.y);
         renderer.updateBall(ball.x, ball.y);
     }
 

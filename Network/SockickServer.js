@@ -94,8 +94,9 @@ function SockickServer() {
         player.mass = Sockick.PLAYER_WEIGHT;
         player.frictionAir = 0.0;
         player.friction = 0.0;
-        
+
         World.addBody(engine.world, player);
+
 
         players[conn.id] = player;
         sockets[nextPID] = conn;
@@ -135,8 +136,11 @@ function SockickServer() {
             player_positions: [{x: p1.position.x, y: p1.position.y}]    
         };
 
+        //console.log("State: " + p1.position.x + " " + p1.position.y);
+
         setTimeout(unicast, 0, sockets[1], states);
         
+        Engine.update(engine, 1000/Sockick.FRAME_RATE);
         // TODO: repeat the above for more players.
     }
 
@@ -171,27 +175,18 @@ function SockickServer() {
     }
 
     var initializeGameEngine = function () {
-        console.log("0");
-
         // create a Matter.js engine
         var jsdom = require("jsdom").jsdom;
         var document = jsdom("hello world");
 
-        console.log("2");
-
         engine = Engine.create(document.createElement("DIV"), document);
 
-
         engine.world.gravity = { x: 0, y: 0 };
-
-        console.log("3");
 
         var width = Sockick.WIDTH;
         var height = Sockick.HEIGHT;
         var wall_thickness = 50;
         var options =  { isStatic: true };
-
-        console.log("3");
 
         var wall_top = Bodies.rectangle(
             wall_thickness, 
@@ -226,8 +221,9 @@ function SockickServer() {
         );
 
         ball = Bodies.circle(Sockick.WIDTH / 2, Sockick.HEIGHT / 2, Sockick.BALL_RADIUS, null, 25);
-
-        ball.friction = 0.5;
+        ball.mass = 1;
+        ball.frictionAir = 0.1;
+        ball.friction = 0.1;
 
         World.addBody(engine.world, ball);
     }
@@ -258,7 +254,7 @@ function SockickServer() {
     }
 
     // ======== Player Move ==========
-    var deltaDistance = 2;
+    var deltaDistance = 20;
 
     function player_move_left(player){
         if (!is_player_moving_left(player)) {
@@ -343,6 +339,7 @@ function SockickServer() {
             // Upon connection established from a client socket
             sock.on('connection', function (conn) {
                 console.log("connected");
+                startGame();
                 // Sends to client
                 broadcast({type:"message", content:"There is now " + count + " players"});
 
@@ -428,9 +425,10 @@ function SockickServer() {
             // for connection
             var app = express();
             var httpServer = http.createServer(app);
-            sock.installHandlers(httpServer, {prefix:'/Sockick'});
+            sock.installHandlers(httpServer, {prefix:'/sockick'});
             httpServer.listen(Sockick.PORT, '0.0.0.0');
-            app.use(express.static(__dirname));
+            app.use(express.static("/Applications/XAMPP/xamppfiles/htdocs/sockick/")); // __dirname
+
             console.log("Server running on http://0.0.0.0:" + Sockick.PORT + "\n")
             console.log("Visit http://0.0.0.0:" + Sockick.PORT + "/Sockick.html in your " + 
                         "browser to start the game")

@@ -7,7 +7,7 @@ var Sockick = {
 	GATE_WIDTH: 180,
 	GAME_DURATION: 300,
 	PORT : 4344,
-	FRAME_RATE : 25,			// frame rate of Sockick game
+	FRAME_RATE : 60,			// frame rate of Sockick game
 	SERVER_NAME : "localhost",	// server name of Sockick game
 	//SERVER_NAME : "172.28.179.28",	// server name of Sockick game
 
@@ -15,7 +15,7 @@ var Sockick = {
 	PLAYER_RADIUS : 30,
 	PLAYER_WEIGHT : 140,
 
-	BALL_RADIUS: 16,
+	BALL_RADIUS: 160,
 	BALL_WEIDHT: 1,
 }
 

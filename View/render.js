@@ -194,7 +194,7 @@ function Render() {
 
 	this.createPlayer = function() {
 		var data = {
-			images: ["Assets/player1.png"],
+			images: ["Assets/player2.png"],
 			frames: {
 				width: 142,
 				height: 210,
@@ -205,7 +205,7 @@ function Render() {
 				right: [7, 13],
 				down: [14,20],
 				up:[21,27],
-				left_stay: 7,
+				left_stay: 6,
 				right_stay: 13,
 				down_stay: 14,
 				up_stay: 25

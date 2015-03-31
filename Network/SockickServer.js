@@ -22,6 +22,7 @@ function SockickServer() {
     var World = Matter.World;
     var Bodies = Matter.Bodies;
     var engine;
+    var ball;
 
     /*
      * private method: broadcast(msg)
@@ -89,7 +90,7 @@ function SockickServer() {
         // @param: x, y, radius, options, maxSides
         var newPlayer = Bodies.circle(startPos.x, startPos.y, Sockick.PLAYER_RADIUS, null, 25);
         newPlayer.mass = Sockick.PLAYER_WEIGHT;
-        World.addBody(newPlayer);
+        World.addBody(engine.world, newPlayer);
 
         players[conn.id] = newPlayer;
         sockets[nextPID] = conn;
@@ -117,98 +118,21 @@ function SockickServer() {
      * of the game
      */
     var gameLoop = function () {
-        // Check if ball is moving
-        if (ball.isMoving()) {
+        // Update on player side
+        
+        var date = new Date();
+        var currentTime = date.getTime();
 
-            // Move paddle (in case accelerometer is used and vx is non-zero).
-            p1.paddle.moveOneStep();
-            p2.paddle.moveOneStep();
-
-            // Move ball
-            ball.updatePosition();
-            ball.checkForBounce(p1.paddle, p2.paddle);
-
-            // Update on player side
-            var bx = ball.x;
-            var by = ball.y;
-            var date = new Date();
-            var currentTime = date.getTime();
-            var states = { 
-                type: "update",
-                timestamp: currentTime,
-                ballX: bx,
-                ballY: by,
-                myPaddleX: p1.paddle.x,
-                myPaddleY: p1.paddle.y,
-                opponentPaddleX: p2.paddle.x,
-                opponentPaddleY: p2.paddle.y};
-            setTimeout(unicast, p1.getDelay(), sockets[1], states);
-            states = { 
-                type: "update",
-                timestamp: currentTime,
-                ballX: bx,
-                ballY: by,
-                myPaddleX: p2.paddle.x,
-                myPaddleY: p2.paddle.y,
-         
-                opponentPaddleX: p1.paddle.x,
-                opponentPaddleY: p1.paddle.y};
-            setTimeout(unicast, p2.getDelay(), sockets[2], states);
-            if (ball.velocityUpdated) {
-                var states = {
-                    type: "updateVelocity",
-                    timestamp: currentTime,
-                    ballX: ball.x,
-                    ballY: ball.y,
-                    ballVX: ball.vx,
-                    ballVY: ball.vy
-                };
-
-
-                setTimeout(unicast, p1.getDelay(), sockets[1], states);
-                setTimeout(unicast, p2.getDelay(), sockets[2], states);
-                ball.velocityUpdated = false;
-            }
-            if (ball.outOfBound) {
-                states = { 
-                    type: "outOfBound",
-                    timestamp: currentTime,
-                    };
-                setTimeout(unicast, p1.getDelay(), sockets[1], states);
-                setTimeout(unicast, p2.getDelay(), sockets[2], states);
-                ball.outOfBound = false;
-            }
-        } else {
-            // Reset
-            reset();
-        }
-    }
-
-    var calculateBallSpeed = function(delay, currentTime) {
-        var distance = Sockick.HEIGHT - 2*Paddle.HEIGHT - Ball.HEIGHT;
-        console.log(distance);
-        var t0 = Math.abs(distance/ball.vy/Sockick.FRAME_RATE);
-        var t = t0 - delay/1000;
-        console.log(t0 + " "+ ball.vx+" "+ball.vy );
-       
-        var vy1;
-        if (ball.vy<0)
-            vy1 =  0-(distance/t/Sockick.FRAME_RATE);
-        else
-            vy1 = distance/t/Sockick.FRAME_RATE;
-        var vx1 = vy1*ball.vx/ball.vy;
-        console.log(t + " "+ vx1+" "+vy1 );
-
-        var states = {
-            type: "updateVelocity",
+        var states = { 
+            type: "update",
             timestamp: currentTime,
-            ballX: ball.x,
-            ballY: ball.y,
-            ballVX: vx1,
-            ballVY: vy1
+            ball_position: {x: ball.position.x, y: ball.position.y},
+            player_positions: [{x: p1.position.x, y: p1.position.y}]    
         };
 
-        return states;
+        setTimeout(unicast, 0, sockets[1], states);
+        
+        // TODO: repeat the above for more players.
     }
 
     /*
@@ -281,7 +205,7 @@ function SockickServer() {
             options
         );
 
-        var ball = Bodies.circle(200, 100, 25, 25);
+        ball = Bodies.circle(Sokick.WIDTH / 2, Sockick.HEIGHT / 2, Sockick.BALL_RADIUS, null, 25);
 
         boxA.frictionAir = 0.0;
         boxA.friction = 0.0;

@@ -39,6 +39,32 @@ function Render() {
 			}
 		};
 
+		document.onkeyup = function(evt) {
+			evt = evt || window.event;
+			var keyCode = evt.keyCode;
+			if (keyCode == 37) {
+				renderer.playerAnimation.gotoAndPlay("left_stay");
+				renderer.playerAnimation.x -= 20;
+				return false;
+			}
+			if (keyCode == 38) {
+				renderer.playerAnimation.gotoAndPlay("up_stay");
+				renderer.playerAnimation.y -= 20;
+				return false;
+			}
+			if (keyCode == 39) {
+				renderer.playerAnimation.gotoAndPlay("right_stay");
+				renderer.playerAnimation.x += 20;
+				return false;
+			}
+			if (keyCode == 40) {
+				renderer.playerAnimation.gotoAndPlay("down_stay");
+				renderer.playerAnimation.y += 20;
+				return false;
+			}
+		};
+
+
 		// setup main stage
 		this.stage = new createjs.Stage("gameStage");
 

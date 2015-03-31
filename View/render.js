@@ -131,11 +131,11 @@ function Render() {
 
 		// create player
 		this.createPlayer();
-		this.stage.addChild(this.animation);
+		this.stage.addChild(this.playerAnimation);
 
 		// create ball
 		this.createBall();
-		this.stage.addChild(ballAnimation);
+		this.stage.addChild(this.ballAnimation);
 
 		// start to tick
 		createjs.Ticker.addEventListener("tick", this.handleTick);

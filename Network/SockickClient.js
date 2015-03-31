@@ -169,7 +169,9 @@ function SockickClient() {
         // Initialize game objects
         ball = new Ball();
         player1 = new Player();
-
+        player1.pid = 1;
+        renderer.init();
+        renderer.createPlayer(1, true);
         // Initialize network and GUI
         initNetwork();
         initGUI();

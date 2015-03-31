@@ -6,6 +6,7 @@ function Player() {
 	this.vy;
 	this.weight;
 	this.radius;
+    this.pid
 	// this.isReversed;
 	// this.isFreezed;
 	var that = this;

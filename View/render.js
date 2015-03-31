@@ -3,13 +3,28 @@ function Render() {
 	this.scoreBoard;
 	this.width;
 	this.height;
+	this.text_score;
+	this.text_timeleft;
 
 	this.init = function() {
 		// prevent scrolling
 		document.onkeydown = function(evt) {
 			evt = evt || window.event;
 			var keyCode = evt.keyCode;
-			if (keyCode >= 37 && keyCode <= 40) {
+			if (keyCode == 37) {
+				console.log("left");
+				return false;
+			}
+			if (keyCode == 38) {
+				console.log("up");
+				return false;
+			}
+			if (keyCode == 39) {
+				console.log("right");
+				return false;
+			}
+			if (keyCode == 40) {
+				console.log("down");
 				return false;
 			}
 		};
@@ -28,19 +43,19 @@ function Render() {
 
 		// setup score board
 		this.scoreBoard = new createjs.Stage("scoreBoard");
-		var text_score = new createjs.Text("0 : 0", "40px Comic Sans MS", "#000000");
-		var textScoreWidth = text_score.getMeasuredWidth();
-		text_score.x = 500-textScoreWidth/2;
-		text_score.y = 35;
-		text_score.textBaseline = "alphabetic";
-		this.scoreBoard.addChild(text_score);
+		this.text_score = new createjs.Text("0 : 0", "40px Comic Sans MS", "#000000");
+		var textScoreWidth = this.text_score.getMeasuredWidth();
+		this.text_score.x = 500-textScoreWidth/2;
+		this.text_score.y = 35;
+		this.text_score.textBaseline = "alphabetic";
+		this.scoreBoard.addChild(this.text_score);
 
-		var text_timeleft = new createjs.Text("Time Left\n10:00 Min", "40px Comic Sans MS", "#000000");
-		var textTimeWidth = text_timeleft.getMeasuredWidth();
-		text_timeleft.x = 1000-textTimeWidth/2;
-		text_timeleft.y = 35;
-		text_timeleft.textBaseline = "alphabetic";
-		this.scoreBoard.addChild(text_timeleft);
+		this.text_timeleft = new createjs.Text("Time Left\n10:00 Min", "40px Comic Sans MS", "#000000");
+		var textTimeWidth = this.text_timeleft.getMeasuredWidth();
+		this.text_timeleft.x = 1000-textTimeWidth/2;
+		this.text_timeleft.y = 35;
+		this.text_timeleft.textBaseline = "alphabetic";
+		this.this.scoreBoard.addChild(text_timeleft);
 
 		// var wasd = new createjs.Bitmap("Assets/wasd.png");
 		// wasd.scaleX = 0.5;
@@ -105,13 +120,19 @@ function Render() {
 
 		var text_reverse = new createjs.Text("Reverse", "16px Comic Sans MS", "#000000");
 		text_reverse.x = 30;
-		text_reverse.y = 78;
+		text_reverse.y = 78
+		;
 		this.scoreBoard.addChild(text_reverse);
 
 		// start to tick
 		createjs.Ticker.addEventListener("tick", this.handleTick);
 
 	}
+	this.setScore = function(scoreLeft, scoreRight) {
+		this.text_score.text = scoreLeft+':'scoreRight;
+		
+	}
+
 	this.handleTick = function(event) {
 
 		renderer.stage.update();

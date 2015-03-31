@@ -5,6 +5,8 @@ function Render() {
 	this.height;
 	this.text_score;
 	this.text_timeleft;
+	this.playerAnimation;
+	this.ballAnimation;
 
 	this.init = function() {
 		// prevent scrolling
@@ -13,18 +15,22 @@ function Render() {
 			var keyCode = evt.keyCode;
 			if (keyCode == 37) {
 				console.log("left");
+				renderer.playerAnimation.gotoAndPlay("left");
 				return false;
 			}
 			if (keyCode == 38) {
 				console.log("up");
+				renderer.playerAnimation.gotoAndPlay("up");
 				return false;
 			}
 			if (keyCode == 39) {
 				console.log("right");
+				renderer.playerAnimation.gotoAndPlay("right");
 				return false;
 			}
 			if (keyCode == 40) {
 				console.log("down");
+				renderer.playerAnimation.gotoAndPlay("down");
 				return false;
 			}
 		};
@@ -39,20 +45,20 @@ function Render() {
 		// add soccer field
 		var soccerFieldImage = new createjs.Bitmap("Assets/soccer-field.png");
 		this.stage.addChild(soccerFieldImage);
-		
+
 
 		// setup score board
 		this.scoreBoard = new createjs.Stage("scoreBoard");
 		this.text_score = new createjs.Text("0 : 0", "40px Comic Sans MS", "#000000");
 		var textScoreWidth = this.text_score.getMeasuredWidth();
-		this.text_score.x = 500-textScoreWidth/2;
+		this.text_score.x = 500 - textScoreWidth / 2;
 		this.text_score.y = 35;
 		this.text_score.textBaseline = "alphabetic";
 		this.scoreBoard.addChild(this.text_score);
 
 		this.text_timeleft = new createjs.Text("Time Left\n10:00 Min", "40px Comic Sans MS", "#000000");
 		var textTimeWidth = this.text_timeleft.getMeasuredWidth();
-		this.text_timeleft.x = 1000-textTimeWidth/2;
+		this.text_timeleft.x = 1000 - textTimeWidth / 2;
 		this.text_timeleft.y = 35;
 		this.text_timeleft.textBaseline = "alphabetic";
 		this.scoreBoard.addChild(this.text_timeleft);
@@ -61,7 +67,7 @@ function Render() {
 		// wasd.scaleX = 0.5;
 		// wasd.scaleY = 0.5;
 		// this.scoreBoard.addChild(wasd);
-		
+
 		// bonus list
 		// freeze
 		var circleBlue = new createjs.Shape();
@@ -120,33 +126,76 @@ function Render() {
 
 		var text_reverse = new createjs.Text("Reverse", "16px Comic Sans MS", "#000000");
 		text_reverse.x = 30;
-		text_reverse.y = 78
-		;
+		text_reverse.y = 78;
 		this.scoreBoard.addChild(text_reverse);
+
+		// create player
+		this.createPlayer();
+		this.stage.addChild(this.playerAnimation);
+
+		// create ball
+		this.createBall();
+		this.stage.addChild(this.ballAnimation);
 
 		// start to tick
 		createjs.Ticker.addEventListener("tick", this.handleTick);
 
 	}
 	this.setScore = function(scoreLeft, scoreRight) {
-		this.text_score.text = scoreLeft+' : '+scoreRight;
+		this.text_score.text = scoreLeft + ' : ' + scoreRight;
 		var width = this.text_score.getMeasuredWidth();
-		this.text_score.x = 500-width/2;
-		
+		this.text_score.x = 500 - width / 2;
+
 	}
 	this.setTimeLeft = function(timeleft) {
 		if (timeleft.length == 4)
-			this.text_timeleft.text = "Time Left\n "+timeleft+" Min";
+			this.text_timeleft.text = "Time Left\n " + timeleft + " Min";
 		else
-			this.text_timeleft.text = "Time Left\n"+timeleft+" Min";
+			this.text_timeleft.text = "Time Left\n" + timeleft + " Min";
 		var textTimeWidth = this.text_timeleft.getMeasuredWidth();
-		this.text_timeleft.x = 1000-textTimeWidth/2;
+		this.text_timeleft.x = 1000 - textTimeWidth / 2;
 	}
 
 	this.handleTick = function(event) {
 
 		renderer.stage.update();
 		renderer.scoreBoard.update();
+	}
+
+	this.createPlayer = function() {
+		var data = {
+			images: ["Assets/player1.png"],
+			frames: {
+				width: 142,
+				height: 210,
+				count: 28
+			},
+			animations: {
+				left: [0,6],
+				right: [7, 13],
+				down: [14,20],
+				up:[21,27]
+			}
+		};
+		var spriteSheet = new createjs.SpriteSheet(data);
+		this.playerAnimation = new createjs.Sprite(spriteSheet, "left");
+	}
+
+	this.createBall = function() {
+		var data = {
+			images: ["Assets/ball.png"],
+			frames: {
+				width: 64,
+				height: 64,
+				count: 28
+			},
+			animations: {
+				stand: [0],
+				run: [0,6]
+			}
+		};
+		var spriteSheet = new createjs.SpriteSheet(data);
+		this.ballAnimation = new createjs.Sprite(spriteSheet, "stand");
 	}
 }
 

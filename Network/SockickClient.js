@@ -45,6 +45,11 @@ function SockickClient() {
                             break;
                         lastUpdateAt = t;
                         //TBD
+                        ball.x = message.ball_position.x;
+                        ball.y = message.ball_position.y;
+                        player1.x = message.player_positions[0].position.x;
+                        player1.y = message.player_positions[0].position.y;
+                        render();
                         break;
                     default:
                         appendMessage("serverMsg", "unhandled meesage type " + message.type);
@@ -65,6 +70,14 @@ function SockickClient() {
         while (document.readyState !== "complete") {
             console.log("loading...");
         };
+        document.onkeydown = function(evt) {
+            onKeyPress(evt);
+        }
+
+        document.onkeyup = function(evt) {
+            onTouchEnd(evt);
+        }
+            
 
         //TBD
 
@@ -76,10 +89,13 @@ function SockickClient() {
      * Touch version of "mouse click" callback above.
      */
     var onTouchEnd = function(e) {
-        sendToServer({
-            type: "direction_changed",
-            new_direction: "stop"
-        });
+        if (e.keyCode >= 37 && e.keyCode <= 40) {
+            sendToServer({
+                type: "direction_changed",
+                new_direction: "stop"
+            });
+        };
+        
     }
 
 
@@ -157,6 +173,7 @@ function SockickClient() {
         // Initialize network and GUI
         initNetwork();
         initGUI();
+        render();
     }
 }
 

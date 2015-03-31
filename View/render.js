@@ -16,21 +16,25 @@ function Render() {
 			if (keyCode == 37) {
 				console.log("left");
 				renderer.playerAnimation.gotoAndPlay("left");
+				renderer.playerAnimation.x -= 20;
 				return false;
 			}
 			if (keyCode == 38) {
 				console.log("up");
 				renderer.playerAnimation.gotoAndPlay("up");
+				renderer.playerAnimation.y -= 20;
 				return false;
 			}
 			if (keyCode == 39) {
 				console.log("right");
 				renderer.playerAnimation.gotoAndPlay("right");
+				renderer.playerAnimation.x += 20;
 				return false;
 			}
 			if (keyCode == 40) {
 				console.log("down");
 				renderer.playerAnimation.gotoAndPlay("down");
+				renderer.playerAnimation.y += 20;
 				return false;
 			}
 		};
@@ -174,11 +178,15 @@ function Render() {
 				left: [0,6],
 				right: [7, 13],
 				down: [14,20],
-				up:[21,27]
+				up:[21,27],
+				left_stay: 7,
+				right_stay: 13,
+				down_stay: 14,
+				up_stay: 25
 			}
 		};
 		var spriteSheet = new createjs.SpriteSheet(data);
-		this.playerAnimation = new createjs.Sprite(spriteSheet, "left");
+		this.playerAnimation = new createjs.Sprite(spriteSheet, "left_stay");
 	}
 
 	this.createBall = function() {

@@ -5,7 +5,7 @@ function Render() {
 	this.height;
 	this.text_score;
 	this.text_timeleft;
-	this.playerAnimation;
+	this.players = {};
 	this.ballAnimation;
 
 	this.init = function() {
@@ -106,8 +106,8 @@ function Render() {
 		this.scoreBoard.addChild(text_reverse);
 
 		// create player
-		this.createPlayer();
-		this.stage.addChild(this.playerAnimation);
+		// this.createPlayer();
+		// this.stage.addChild(this.playerAnimation);
 
 		// create ball
 		this.createBall();
@@ -138,7 +138,7 @@ function Render() {
 		renderer.scoreBoard.update();
 	}
 
-	this.createPlayer = function() {
+	this.createPlayer = function(pid) {
 		var data = {
 			images: ["Assets/player2.png"],
 			frames: {
@@ -158,7 +158,9 @@ function Render() {
 			}
 		};
 		var spriteSheet = new createjs.SpriteSheet(data);
-		this.playerAnimation = new createjs.Sprite(spriteSheet, "left_stay");
+		var playerAnimation = new createjs.Sprite(spriteSheet, "left_stay");
+		this.players[pid] = playerAnimation;
+		this.stage.addChild(playerAnimation);
 	}
 
 	this.createBall = function() {
@@ -178,9 +180,9 @@ function Render() {
 		this.ballAnimation = new createjs.Sprite(spriteSheet, "stand");
 	}
 
-	this.updatePlayers = function(x, y) {
-		this.playerAnimation.x = x;
-		this.playerAnimation.y = y;
+	this.updatePlayers = function(pid, x, y) {
+		this.players[pid].x = x;
+		this.players[pid].y = y;
 	}
 
 	this.updateBall = function(x, y) {
@@ -189,5 +191,5 @@ function Render() {
 	}
 }
 
-var renderer = new Render();
-renderer.init();
+// var renderer = new Render();
+// renderer.init();

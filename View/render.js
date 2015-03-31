@@ -152,7 +152,7 @@ function Render() {
 				stay_left: 0,
 				stay_right: 7,
 				stay_up: 21,
-				stay_down: 14
+				stay_down: 14,
 				left: [0, 6],
 				right: [7, 13],
 				down: [14, 20],

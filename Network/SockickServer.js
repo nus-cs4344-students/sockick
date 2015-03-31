@@ -6,7 +6,9 @@
 var LIB_PATH = "./../";
 
 require(LIB_PATH + "Sockick.js");
+
 require(LIB_PATH + "node_modules/matter-js/build/matter-0.8.0.js");
+//require('matter-js');
 
 function SockickServer() {
     // Private Variables
@@ -88,11 +90,14 @@ function SockickServer() {
 
         // Create player object and insert into players with key = conn.id
         // @param: x, y, radius, options, maxSides
-        var newPlayer = Bodies.circle(startPos.x, startPos.y, Sockick.PLAYER_RADIUS, null, 25);
-        newPlayer.mass = Sockick.PLAYER_WEIGHT;
-        World.addBody(engine.world, newPlayer);
+        var player = Bodies.circle(startPos.x, startPos.y, Sockick.PLAYER_RADIUS, null, 25);
+        player.mass = Sockick.PLAYER_WEIGHT;
+        player.frictionAir = 0.0;
+        player.friction = 0.0;
+        
+        World.addBody(engine.world, player);
 
-        players[conn.id] = newPlayer;
+        players[conn.id] = player;
         sockets[nextPID] = conn;
 
         // Mark as player 1 or 2
@@ -166,16 +171,27 @@ function SockickServer() {
     }
 
     var initializeGameEngine = function () {
-        // Matter.js module aliases
+        console.log("0");
 
         // create a Matter.js engine
-        engine = Engine.create(document.body);
+        var jsdom = require("jsdom").jsdom;
+        var document = jsdom("hello world");
+
+        console.log("2");
+
+        engine = Engine.create(document.createElement("DIV"), document);
+
+
         engine.world.gravity = { x: 0, y: 0 };
+
+        console.log("3");
 
         var width = Sockick.WIDTH;
         var height = Sockick.HEIGHT;
         var wall_thickness = 50;
         var options =  { isStatic: true };
+
+        console.log("3");
 
         var wall_top = Bodies.rectangle(
             wall_thickness, 
@@ -209,10 +225,8 @@ function SockickServer() {
             options
         );
 
-        ball = Bodies.circle(Sokick.WIDTH / 2, Sockick.HEIGHT / 2, Sockick.BALL_RADIUS, null, 25);
+        ball = Bodies.circle(Sockick.WIDTH / 2, Sockick.HEIGHT / 2, Sockick.BALL_RADIUS, null, 25);
 
-        boxA.frictionAir = 0.0;
-        boxA.friction = 0.0;
         ball.friction = 0.5;
 
         World.addBody(engine.world, ball);
@@ -310,7 +324,8 @@ function SockickServer() {
      * callbacks for socket.
      */
     this.start = function () {
-        try {
+        //try {
+
             var express = require('express');
             var http = require('http');
             var sockjs = require('sockjs');
@@ -419,10 +434,10 @@ function SockickServer() {
             console.log("Server running on http://0.0.0.0:" + Sockick.PORT + "\n")
             console.log("Visit http://0.0.0.0:" + Sockick.PORT + "/Sockick.html in your " + 
                         "browser to start the game")
-        } catch (e) {
-            console.log("Cannot listen to " + Sockick.PORT);
-            console.log("Error: " + e);
-        }
+        // } catch (e) {
+        //     console.log("Cannot listen to " + Sockick.PORT);
+        //     console.log("Error: " + e);
+        // }
     }
 }
 

@@ -9,60 +9,6 @@ function Render() {
 	this.ballAnimation;
 
 	this.init = function() {
-		// prevent scrolling
-		document.onkeydown = function(evt) {
-			evt = evt || window.event;
-			var keyCode = evt.keyCode;
-			if (keyCode == 37) {
-				console.log("left");
-				renderer.playerAnimation.gotoAndPlay("left");
-				renderer.playerAnimation.x -= 20;
-				return false;
-			}
-			if (keyCode == 38) {
-				console.log("up");
-				renderer.playerAnimation.gotoAndPlay("up");
-				renderer.playerAnimation.y -= 20;
-				return false;
-			}
-			if (keyCode == 39) {
-				console.log("right");
-				renderer.playerAnimation.gotoAndPlay("right");
-				renderer.playerAnimation.x += 20;
-				return false;
-			}
-			if (keyCode == 40) {
-				console.log("down");
-				renderer.playerAnimation.gotoAndPlay("down");
-				renderer.playerAnimation.y += 20;
-				return false;
-			}
-		};
-
-		document.onkeyup = function(evt) {
-			evt = evt || window.event;
-			var keyCode = evt.keyCode;
-			if (keyCode == 37) {
-				renderer.playerAnimation.gotoAndPlay("left_stay");
-				renderer.playerAnimation.x -= 20;
-				return false;
-			}
-			if (keyCode == 38) {
-				renderer.playerAnimation.gotoAndPlay("up_stay");
-				renderer.playerAnimation.y -= 20;
-				return false;
-			}
-			if (keyCode == 39) {
-				renderer.playerAnimation.gotoAndPlay("right_stay");
-				renderer.playerAnimation.x += 20;
-				return false;
-			}
-			if (keyCode == 40) {
-				renderer.playerAnimation.gotoAndPlay("down_stay");
-				renderer.playerAnimation.y += 20;
-				return false;
-			}
-		};
 
 
 		// setup main stage
@@ -230,6 +176,16 @@ function Render() {
 		};
 		var spriteSheet = new createjs.SpriteSheet(data);
 		this.ballAnimation = new createjs.Sprite(spriteSheet, "stand");
+	}
+
+	this.updatePlayers = function(x, y) {
+		this.playerAnimation.x = x;
+		this.playerAnimation.y = y;
+	}
+
+	this.updateBall = function(x, y) {
+		this.ballAnimation.x = x;
+		this.ballAnimation.y = y;
 	}
 }
 

@@ -130,6 +130,8 @@ function SockickClient() {
      */
     var render = function() {
         //TBD
+        renderer.updatePlayer(player1.x, player1.y);
+        renderer.updateBall(ball.x, ball.y);
     }
 
     /*
@@ -152,6 +154,7 @@ function SockickClient() {
 
 
 var client = new SockickClient();
+var renderer = new Render();
 setTimeout(function() {
     client.start();
 }, 500);

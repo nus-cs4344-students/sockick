@@ -5,7 +5,8 @@ function Render() {
 	this.height;
 	this.text_score;
 	this.text_timeleft;
-	this.animation;
+	this.playerAnimation;
+	this.ballAnimation;
 
 	this.init = function() {
 		// prevent scrolling
@@ -132,6 +133,10 @@ function Render() {
 		this.createPlayer();
 		this.stage.addChild(this.animation);
 
+		// create ball
+		this.createBall();
+		this.stage.addChild(ballAnimation);
+
 		// start to tick
 		createjs.Ticker.addEventListener("tick", this.handleTick);
 
@@ -173,7 +178,24 @@ function Render() {
 			}
 		};
 		var spriteSheet = new createjs.SpriteSheet(data);
-		this.animation = new createjs.Sprite(spriteSheet, "left");
+		this.playerAnimation = new createjs.Sprite(spriteSheet, "left");
+	}
+
+	this.createBall = function() {
+		var data = {
+			images: ["Assets/ball.png"],
+			frames: {
+				width: 64,
+				height: 64,
+				count: 28
+			},
+			animations: {
+				stand: [0],
+				run: [0,6]
+			}
+		};
+		var spriteSheet = new createjs.SpriteSheet(data);
+		this.ballAnimation = new createjs.Sprite(spriteSheet, "stand");
 	}
 }
 

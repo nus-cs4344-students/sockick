@@ -37,11 +37,7 @@ function Ball() {
 	    this.y = Sockick.HEIGHT/2;
 	    this.angularVelocity = 0;
     }
-
 }
-
-// Static variables
-Ball.WEIGHT = 1;
 
 // For node.js require
 global.Ball = Ball;

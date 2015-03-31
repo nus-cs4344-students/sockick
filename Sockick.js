@@ -12,6 +12,7 @@ var Sockick = {
 	SERVER_NAME : "localhost"	// server name of Sockick game
 	//SERVER_NAME : "172.28.179.28"	// server name of Sockick game
 
+	// Constants:
 	PLAYER_RADIUS : 30;
 	PLAYER_WEIGHT : 140;
 }

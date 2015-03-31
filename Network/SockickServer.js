@@ -21,6 +21,7 @@ function SockickServer() {
     var Engine = Matter.Engine;
     var World = Matter.World;
     var Bodies = Matter.Bodies;
+    var engine;
 
     /*
      * private method: broadcast(msg)
@@ -85,7 +86,12 @@ function SockickServer() {
         unicast(conn, {type: "message", content:"You are Player " + nextPID + ". Your position is at the " + initialPosition});
 
         // Create player object and insert into players with key = conn.id
-        players[conn.id] = Bodies.rectangle(startPos.x, startPos.y, 80, 80);;
+        // @param: x, y, radius, options, maxSides
+        var newPlayer = Bodies.circle(startPos.x, startPos.y, Sockick.PLAYER_RADIUS, null, 25);
+        newPlayer.mass = Sockick.PLAYER_WEIGHT;
+        World.addBody(newPlayer);
+
+        players[conn.id] = newPlayer;
         sockets[nextPID] = conn;
 
         // Mark as player 1 or 2
@@ -235,12 +241,11 @@ function SockickServer() {
         // Matter.js module aliases
 
         // create a Matter.js engine
-        var engine = Engine.create(document.body);
-        
+        engine = Engine.create(document.body);
         engine.world.gravity = { x: 0, y: 0 };
 
-        var width = 400;
-        var height = 400;
+        var width = Sockick.WIDTH;
+        var height = Sockick.HEIGHT;
         var wall_thickness = 50;
         var options =  { isStatic: true };
 

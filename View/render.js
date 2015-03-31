@@ -55,7 +55,7 @@ function Render() {
 		this.text_timeleft.x = 1000-textTimeWidth/2;
 		this.text_timeleft.y = 35;
 		this.text_timeleft.textBaseline = "alphabetic";
-		this.this.scoreBoard.addChild(text_timeleft);
+		this.scoreBoard.addChild(this.text_timeleft);
 
 		// var wasd = new createjs.Bitmap("Assets/wasd.png");
 		// wasd.scaleX = 0.5;
@@ -129,7 +129,9 @@ function Render() {
 
 	}
 	this.setScore = function(scoreLeft, scoreRight) {
-		this.text_score.text = scoreLeft+':'scoreRight;
+		this.text_score.text = scoreLeft+' : '+scoreRight;
+		var textTimeWidth = this.text_timeleft.getMeasuredWidth();
+		this.text_timeleft.x = 1000-textTimeWidth/2;
 		
 	}
 

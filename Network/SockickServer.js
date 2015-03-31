@@ -13,16 +13,16 @@ function SockickServer() {
     var port;         // Game port 
     var count;        // Keeps track how many people are connected to server 
     var nextPID;      // PID to assign to next connected player (i.e. which player slot is open) 
-    var ball;         // the game ball 
+    var gameInterval; // Interval variable used for gameLoop 
     var sockets;      // Associative array for sockets, indexed via player ID
     var players;      // Associative array for players, indexed via socket ID
     var p1, p2, p3, p4;       // Players
+    var ball;         // the game football 
 
     var Engine = Matter.Engine;
     var World = Matter.World;
     var Bodies = Matter.Bodies;
     var engine;
-    var ball;
 
     /*
      * private method: broadcast(msg)
@@ -144,6 +144,8 @@ function SockickServer() {
      * the game loop.
      */
     var startGame = function () {
+
+        /*
         if (gameInterval !== undefined) {
             // There is already a timer running so the game has 
             // already started.
@@ -159,6 +161,8 @@ function SockickServer() {
             ball.startMoving();
             gameInterval = setInterval(function() {gameLoop();}, 1000/Sockick.FRAME_RATE);
         }
+        */
+        gameInterval = setInterval(function() {gameLoop();}, 1000/Sockick.FRAME_RATE);
     }
 
     var initializeGameEngine = function () {
@@ -210,6 +214,92 @@ function SockickServer() {
         boxA.frictionAir = 0.0;
         boxA.friction = 0.0;
         ball.friction = 0.5;
+
+        World.addBody(engine.world, ball);
+    }
+
+    function player_change_direction(player, newDirection){
+        switch (newDirection){
+            case "left":{
+                player_move_left(player);
+                break;
+            }
+            case "up":{
+                player_move_up(player);
+                break;
+            }
+            case "right":{
+                player_move_right(player);
+                break;
+            }
+            case "down":{
+                player_move_down(player);
+                break;
+            }
+            case "stop":{
+                player_stop(player);
+                break;
+            }
+        }
+    }
+
+    // ======== Player Move ==========
+    var deltaDistance = 2;
+
+    function player_move_left(player){
+        if (!is_player_moving_left(player)) {
+            player.position = {
+                x: player.position.x - deltaDistance - player.velocity.x, 
+                y: player.position.y};
+        }
+    }
+
+    function player_move_right(player){
+        if (!is_player_moving_right(player)) {
+            player.position = {
+                x: player.position.x + deltaDistance - player.velocity.x, 
+                y: player.position.y};
+        }
+    }
+
+    function player_move_up(player){
+        if (!is_player_moving_up(player)) {
+            player.position = {
+                x: player.position.x, 
+                y: player.position.y - deltaDistance - player.velocity.y};
+        }
+    }
+
+    function player_move_down(player){
+        if (!is_player_moving_down(player)) {
+            player.position = {
+                x: player.position.x, 
+                y: player.position.y + deltaDistance - player.velocity.y};
+        }
+    }
+
+    function player_stop(player){
+        player.position = {
+                x: player.position.x - player.velocity.x, 
+                y: player.position.y - player.velocity.y};
+    }
+
+    // ==== Predicates ====
+
+    function is_player_moving_left(player){
+        return player.velocity.x == -deltaDistance;
+    }
+
+    function is_player_moving_right(player){
+        return player.velocity.x == deltaDistance;
+    }
+
+    function is_player_moving_up(player){
+        return player.velocity.y == -deltaDistance;
+    }
+
+    function is_player_moving_down(player){
+        return player.velocity.y == deltaDistance;
     }
 
     /*
@@ -230,12 +320,11 @@ function SockickServer() {
             count = 0;
             nextPID = 1;
             gameInterval = undefined;
-            ball = new Ball();
             players = new Object;
             sockets = new Object;
-
-
             
+            initializeGameEngine();
+
             // Upon connection established from a client socket
             sock.on('connection', function (conn) {
                 console.log("connected");
@@ -281,6 +370,7 @@ function SockickServer() {
                         // no corresponding player.  don't do anything.
                         return;
                     } 
+
                     switch (message.type) {
                         // one of the player starts the game.
                         case "start": 
@@ -309,6 +399,9 @@ function SockickServer() {
                             // p1.paddle.reset();
                             // p2.paddle.reset();
                             //reset();
+                            break;
+                        case "direction_changed":
+                            player_change_direction(players[conn.id], message.new_direction);
                             break;
                         default:
                             console.log("Unhandled " + message.type);

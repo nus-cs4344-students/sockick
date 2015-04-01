@@ -7,7 +7,7 @@ var LIB_PATH = "./../";
 
 require(LIB_PATH + "Sockick.js");
 
-require(LIB_PATH + "node_modules/matter-js/build/matter-0.8.0.js");
+require(LIB_PATH + "Lib/matter-0.8.0-modified.js");
 //require('matter-js');
 
 function SockickServer() {

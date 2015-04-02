@@ -193,7 +193,7 @@ function Render() {
 
 	this.updatePlayers = function(pid, x, y) {
 		this.players[pid].x = x - (Sockick.PLAYER_WIDTH / 2);
-		this.players[pid].y = y - Sockick.PLAYER_HEIGHT + 30;
+		this.players[pid].y = y - Sockick.PLAYER_HEIGHT + 60;
 		if (pid == this.my_id) {
 			this.myLabel.x = this.players[pid].x + 50;
 			this.myLabel.y = this.players[pid].x + 10;

@@ -83,9 +83,6 @@ function SockickServer() {
         var initialPosition = (nextPID === 1) ? "left" : "right";
         var startPos;
 
-        if (nextPID === 1) {
-            console.log("FFFFFFF");
-        }
         switch (nextPID){
             case 1:{
                 startPos = {x: Sockick.WIDTH / 4, y: Sockick.HEIGHT / 4};
@@ -114,7 +111,7 @@ function SockickServer() {
         // Create player object and insert into players with key = conn.id
         // @param: x, y, radius, options, maxSides
         var player = Bodies.circle(startPos.x, startPos.y, Sockick.PLAYER_RADIUS, null, 25);
-        player.mass = Sockick.PLAYER_WEIGHT;
+        player.density = 0.01;
         player.frictionAir = 0.0;
         player.friction = 0.0;
         player.restitution = 0.0;
@@ -162,7 +159,7 @@ function SockickServer() {
                 player_positions: [{x: p1.position.x, y: p1.position.y}]    
             };
 
-            console.log("State: " + p1.position.x + " " + p1.position.y);
+            //console.log("State: " + p1.position.x + " " + p1.position.y);
         
             setTimeout(unicast, 0, sockets[1], states);
         } else{
@@ -209,44 +206,44 @@ function SockickServer() {
         var jsdom = require("jsdom").jsdom;
         var document = jsdom("hello world");
 
-        engine = Engine.create(document.createElement("DIV"), document);
+        engine = Engine.create(null, null);
 
         engine.world.gravity = { x: 0, y: 0 };
 
         var width = Sockick.WIDTH;
         var height = Sockick.HEIGHT;
-        var wall_thickness = 50;
-        var options =  { isStatic: true };
+        var wall_thickness = 500;
+        var options =  { isStatic: true,};
 
         var wall_top = Bodies.rectangle(
-            wall_thickness, 
-            0,
-            width * 2, 
+            width / 2, 
+            -wall_thickness / 2,
+            width + wall_thickness * 2, 
             wall_thickness, 
             options
         );
 
         var wall_bottom = Bodies.rectangle(
-            wall_thickness, 
-            height + wall_thickness, 
-            width * 2, 
+            width / 2, 
+            height + wall_thickness / 2, 
+            width + 2 * wall_thickness, 
             wall_thickness, 
             options
         );
 
         var wall_left = Bodies.rectangle(
-            0, 
+            - wall_thickness / 2, 
+            height / 2, 
             wall_thickness, 
-            wall_thickness, 
-            height * 2, 
+            height, 
             options
         );
 
         var wall_right = Bodies.rectangle(
-            width + wall_thickness, 
-            wall_thickness,
+            width + wall_thickness / 2, 
+            height / 2, 
             wall_thickness, 
-            height * 2, 
+            height, 
             options
         );
 
@@ -255,18 +252,18 @@ function SockickServer() {
         wall_left.restitution = 1;
         wall_right.restitution = 1;
 
+
         ball = Bodies.circle(Sockick.WIDTH / 2, Sockick.HEIGHT / 2, Sockick.BALL_RADIUS, null, 25);
-        ball.mass = Sockick.BALL_WEIDHT;
-        ball.frictionAir = 0.1;
-        ball.friction = 0.1;
+        ball.frictionAir = 0.0;
+        ball.friction = 0.01;
         ball.restitution = 1;
 
         World.addBody(engine.world, ball);
                 
         World.addBody(engine.world, wall_top);
         World.addBody(engine.world, wall_bottom);
-        World.addBody(engine.world, wall_left);
         World.addBody(engine.world, wall_right);
+        World.addBody(engine.world, wall_left);
 
     }
 
@@ -297,7 +294,7 @@ function SockickServer() {
     }
 
     // ======== Player Move ==========
-    var deltaDistance = 20;
+    var deltaDistance = 10;
 
     function player_move_left(player){
         if (!is_player_moving_left(player)) {

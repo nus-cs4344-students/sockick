@@ -803,7 +803,7 @@ var World = {};
             gravity: { x: 0, y: 1 },
             bounds: { 
                 min: { x: 0, y: 0 }, 
-                max: { x: 800, y: 600 } 
+                max: { x: 5000, y: 5000 } 
             }
         };
         
@@ -2881,8 +2881,8 @@ var Engine = {};
 
         document = newDocument;
         // options may be passed as the first (and only) argument
-        options = Common.isElement(element) ? options : element;
-        element = Common.isElement(element) ? element : null;
+        // options = Common.isElement(element) ? options : element;
+        // element = Common.isElement(element) ? element : null;
 
         var defaults = {
             enabled: true,

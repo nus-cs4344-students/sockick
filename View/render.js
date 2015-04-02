@@ -192,8 +192,30 @@ function Render() {
 	}
 
 	this.updatePlayers = function(pid, x, y) {
+		var dx = x - this.players[pid].x;
+		var dy = y - this.players[pid].y;
 		this.players[pid].x = x;
 		this.players[pid].y = y;
+
+		if (dx == 0 && dy == 0)
+			this.players[pid].stop();
+		if (dx == 0 && dy > 0)
+			this.players[pid].gotoAndPlay("down");
+		if (dx == 0 && dy < 0)
+			this.players[pid].gotoAndPlay("up");
+		if (dx > 0 && dy == 0)
+			this.players[pid].gotoAndPlay("right");
+		if (dx > 0 && dy > 0)
+			this.players[pid].gotoAndPlay("right_down");
+		if (dx > 0 && dy < 0)
+			this.players[pid].gotoAndPlay("right_up");
+		if (dx < 0 && dy == 0)
+			this.players[pid].gotoAndPlay("left");
+		if (dx < 0 && dy > 0)
+			this.players[pid].gotoAndPlay("left_down");
+		if (dx < 0 && dy < 0)
+			this.players[pid].gotoAndPlay("left_up");
+
 		if (pid == this.my_id) {
 			this.myLabel.x = x + 50;
 			this.myLabel.y = y + 10;

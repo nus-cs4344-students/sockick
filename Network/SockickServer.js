@@ -250,7 +250,7 @@ function SockickServer() {
         );
 
         ball = Bodies.circle(Sockick.WIDTH / 2, Sockick.HEIGHT / 2, Sockick.BALL_RADIUS, null, 25);
-        ball.mass = 1;
+        ball.mass = Sockick.BALL_WEIDHT;
         ball.frictionAir = 0.1;
         ball.friction = 0.1;
 

@@ -117,6 +117,7 @@ function SockickServer() {
         player.mass = Sockick.PLAYER_WEIGHT;
         player.frictionAir = 0.0;
         player.friction = 0.0;
+        player.restitution = 0.0;
 
         World.addBody(engine.world, player);
 
@@ -249,12 +250,24 @@ function SockickServer() {
             options
         );
 
+        wall_top.restitution = 1;
+        wall_bottom.restitution = 1;
+        wall_left.restitution = 1;
+        wall_right.restitution = 1;
+
         ball = Bodies.circle(Sockick.WIDTH / 2, Sockick.HEIGHT / 2, Sockick.BALL_RADIUS, null, 25);
         ball.mass = Sockick.BALL_WEIDHT;
         ball.frictionAir = 0.1;
         ball.friction = 0.1;
+        ball.restitution = 1;
 
         World.addBody(engine.world, ball);
+                
+        World.addBody(engine.world, wall_top);
+        World.addBody(engine.world, wall_bottom);
+        World.addBody(engine.world, wall_left);
+        World.addBody(engine.world, wall_right);
+
     }
 
     function player_change_direction(player, newDirection){

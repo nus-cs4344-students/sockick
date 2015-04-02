@@ -20,7 +20,6 @@ var Sockick = {
 	BALL_RADIUS: 32,
 	BALL_WEIDHT: 1,
 	BALL_RESTITUTION: 0.0,
-
 }
 
 // For node.js require

@@ -112,8 +112,8 @@ function SockickServer() {
         // @param: x, y, radius, options, maxSides
         var player = Bodies.circle(startPos.x, startPos.y, Sockick.PLAYER_RADIUS, null, 25);
         player.density = 0.01;
-        player.frictionAir = 0.0;
-        player.friction = 0.0;
+        player.frictionAir = 0.05;
+        player.friction = 0.1;
         player.restitution = 0.0;
 
         World.addBody(engine.world, player);

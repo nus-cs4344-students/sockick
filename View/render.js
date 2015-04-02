@@ -218,9 +218,9 @@ function Render() {
 		if (dx < 0 && dy < 0)
 			this.players[pid].gotoAndPlay("left_up");
 
-		if (dx != 0 || dy != 0)
-			console.log("moving");
-
+		if (dx != 0 || dy != 0){
+			//console.log("moving");
+		}
 
 		this.players[pid].x = x - (Sockick.PLAYER_WIDTH / 2);
 		this.players[pid].y = y - Sockick.PLAYER_HEIGHT + heightOffset;

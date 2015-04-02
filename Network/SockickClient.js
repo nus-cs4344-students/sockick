@@ -115,6 +115,7 @@ function SockickClient() {
                         type: "direction_changed",
                         new_direction: "left"
                     });
+                    e.preventDefault();
                     break;
                 }
             case 38:
@@ -123,6 +124,7 @@ function SockickClient() {
                         type: "direction_changed",
                         new_direction: "up"
                     });
+                    e.preventDefault();
                     break;
                 }
 
@@ -132,6 +134,7 @@ function SockickClient() {
                         type: "direction_changed",
                         new_direction: "right"
                     });
+                    e.preventDefault();
                     break;
                 }
             case 40:
@@ -140,6 +143,7 @@ function SockickClient() {
                         type: "direction_changed",
                         new_direction: "down"
                     });
+                    e.preventDefault();
                     break;
                 }
         }

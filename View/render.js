@@ -192,8 +192,40 @@ function Render() {
 	}
 
 	this.updatePlayers = function(pid, x, y) {
+
+		var heightOffset = 60;
+		var dx = x - (Sockick.PLAYER_WIDTH / 2) - this.players[pid].x;
+		var dy = y - Sockick.PLAYER_HEIGHT + heightOffset - this.players[pid].y;
+		this.players[pid].x = x;
+		this.players[pid].y = y;
+
+		if (dx == 0 && dy == 0)
+			this.players[pid].stop();
+		if (dx == 0 && dy > 0)
+			this.players[pid].gotoAndPlay("down");
+		if (dx == 0 && dy < 0)
+			this.players[pid].gotoAndPlay("up");
+		if (dx > 0 && dy == 0)
+			this.players[pid].gotoAndPlay("right");
+		if (dx > 0 && dy > 0)
+			this.players[pid].gotoAndPlay("right_down");
+		if (dx > 0 && dy < 0)
+			this.players[pid].gotoAndPlay("right_up");
+		if (dx < 0 && dy == 0)
+			this.players[pid].gotoAndPlay("left");
+		if (dx < 0 && dy > 0)
+			this.players[pid].gotoAndPlay("left_down");
+		if (dx < 0 && dy < 0)
+			this.players[pid].gotoAndPlay("left_up");
+
+		if (dx != 0 || dy != 0)
+			console.log("moving");
+
+
 		this.players[pid].x = x - (Sockick.PLAYER_WIDTH / 2);
-		this.players[pid].y = y - Sockick.PLAYER_HEIGHT + 60;
+		this.players[pid].y = y - Sockick.PLAYER_HEIGHT + heightOffset;
+		// this.players[pid].setTransform(x,y);
+
 		if (pid == this.my_id) {
 			this.myLabel.x = this.players[pid].x + 50;
 			this.myLabel.y = this.players[pid].x + 10;
@@ -201,6 +233,17 @@ function Render() {
 	}
 
 	this.updateBall = function(x, y) {
+
+		if (x - Sockick.BALL_RADIUS != this.ballAnimation.x ||
+			y - Sockick.BALL_RADIUS != this.ballAnimation.y) {
+			if (this.ballAnimation.currentAnimation !== "run") {
+				this.ballAnimation.gotoAndPlay("run");
+			}
+		} else {
+			if (this.ballAnimation.currentAnimation !== "stand") {
+				this.ballAnimation.gotoAndPlay("stand");
+			}
+		}
 		this.ballAnimation.x = x - Sockick.BALL_RADIUS;
 		this.ballAnimation.y = y - Sockick.BALL_RADIUS;
 	}

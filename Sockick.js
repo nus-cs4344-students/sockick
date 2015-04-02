@@ -2,8 +2,8 @@
   Declared as literal object (All variables are static)	  
   =====================================================*/
 var Sockick = {
-	HEIGHT : 636,
-	WIDTH : 1000,
+	HEIGHT : 594,
+	WIDTH : 916,
 	GATE_WIDTH: 180,
 	GAME_DURATION: 300,
 	PORT : 4344,

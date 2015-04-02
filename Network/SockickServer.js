@@ -427,7 +427,9 @@ function SockickServer() {
             var httpServer = http.createServer(app);
             sock.installHandlers(httpServer, {prefix:'/sockick'});
             httpServer.listen(Sockick.PORT, '0.0.0.0');
-            app.use(express.static("/Applications/XAMPP/xamppfiles/htdocs/sockick/")); // __dirname
+            var dir = __dirname.substring(0, __dirname.length-8);
+            console.log(dir);
+            app.use(express.static(dir)); // __dirname
 
             console.log("Server running on http://0.0.0.0:" + Sockick.PORT + "\n")
             console.log("Visit http://0.0.0.0:" + Sockick.PORT + "/Sockick.html in your " + 

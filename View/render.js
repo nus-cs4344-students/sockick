@@ -217,10 +217,14 @@ function Render() {
 		if (dx < 0 && dy < 0)
 			this.players[pid].gotoAndPlay("left_up");
 
+		if (dx != 0 || dy != 0)
+			console.log("moving");
+
 
 		this.players[pid].x = x - (Sockick.PLAYER_WIDTH / 2);
 		this.players[pid].y = y - Sockick.PLAYER_HEIGHT + 30;
-f
+		// this.players[pid].setTransform(x,y);
+
 		if (pid == this.my_id) {
 			this.myLabel.x = this.players[pid].x + 50;
 			this.myLabel.y = this.players[pid].x + 10;

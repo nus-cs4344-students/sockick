@@ -144,8 +144,8 @@ function Render() {
 		var data = {
 			images: ["Assets/player2.png"],
 			frames: {
-				width: 142,
-				height: 210,
+				width: Sockick.PLAYER_WIDTH,
+				height: Sockick.PLAYER_HEIGHT,
 				count: 28
 			},
 			animations: {
@@ -192,11 +192,11 @@ function Render() {
 	}
 
 	this.updatePlayers = function(pid, x, y) {
-		this.players[pid].x = x;
-		this.players[pid].y = y;
+		this.players[pid].x = x - (Sockick.PLAYER_WIDTH / 2);
+		this.players[pid].y = y - Sockick.PLAYER_HEIGHT + 30;
 		if (pid == this.my_id) {
-			this.myLabel.x = x + 50;
-			this.myLabel.y = y + 10;
+			this.myLabel.x = this.players[pid].x + 50;
+			this.myLabel.y = this.players[pid].x + 10;
 		}
 	}
 

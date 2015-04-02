@@ -81,9 +81,32 @@ function SockickServer() {
 
         // 1st player is always top, 2nd player is always bottom
         var initialPosition = (nextPID === 1) ? "left" : "right";
-        var startPos = (nextPID === 1) ? 
-                        {x: Sockick.WIDTH / 4, y: Sockick.HEIGHT / 2} : 
-                        {x: 3 * Sockick.WIDTH / 4, y: Sockick.HEIGHT / 2};
+        var startPos;
+
+        if (nextPID === 1) {
+            console.log("FFFFFFF");
+        }
+        switch (nextPID){
+            case 1:{
+                startPos = {x: Sockick.WIDTH / 4, y: Sockick.HEIGHT / 4};
+                break;
+            }
+            case 2:{
+                startPos = {x: 3 * Sockick.WIDTH / 4, y: Sockick.HEIGHT / 4};
+                break;
+            }
+            case 3:{
+                startPos = {x: Sockick.WIDTH / 4, y: 3 * Sockick.HEIGHT / 4};
+                break;
+            }
+            case 4:{
+                startPos = {x: 3 * Sockick.WIDTH / 4, y: 3 * Sockick.HEIGHT / 4};
+                break;
+            }
+            default:{
+                console.log("Error: invalid nextPID: " + nextPID + typeof(nextPID));
+            }
+        }
 
         // Send message to new player (the current client)
         unicast(conn, {type: "message", content:"You are Player " + nextPID + ". Your position is at the " + initialPosition});
@@ -101,6 +124,7 @@ function SockickServer() {
         players[conn.id] = player;
         sockets[nextPID] = conn;
 
+        console.log("Next pid: " + nextPID);
         // Mark as player 1 or 2
         if (nextPID == 1) {
             p1 = players[conn.id];
@@ -129,16 +153,20 @@ function SockickServer() {
         var date = new Date();
         var currentTime = date.getTime();
 
-        var states = { 
-            type: "update",
-            timestamp: currentTime,
-            ball_position: {x: ball.position.x, y: ball.position.y},
-            player_positions: [{x: p1.position.x, y: p1.position.y}]    
-        };
+        if (p1 !== undefined) {
+            var states = { 
+                type: "update",
+                timestamp: currentTime,
+                ball_position: {x: ball.position.x, y: ball.position.y},
+                player_positions: [{x: p1.position.x, y: p1.position.y}]    
+            };
 
-        //console.log("State: " + p1.position.x + " " + p1.position.y);
-
-        setTimeout(unicast, 0, sockets[1], states);
+            console.log("State: " + p1.position.x + " " + p1.position.y);
+        
+            setTimeout(unicast, 0, sockets[1], states);
+        } else{
+            console.log("p1 is undefined now");
+        }
         
         Engine.update(engine, 1000/Sockick.FRAME_RATE);
         // TODO: repeat the above for more players.
@@ -171,6 +199,7 @@ function SockickServer() {
             gameInterval = setInterval(function() {gameLoop();}, 1000/Sockick.FRAME_RATE);
         }
         */
+        console.log("Starting game...");
         gameInterval = setInterval(function() {gameLoop();}, 1000/Sockick.FRAME_RATE);
     }
 
@@ -229,6 +258,7 @@ function SockickServer() {
     }
 
     function player_change_direction(player, newDirection){
+        console.log(newDirection);
         switch (newDirection){
             case "left":{
                 player_move_left(player);
@@ -343,7 +373,7 @@ function SockickServer() {
                 // Sends to client
                 broadcast({type:"message", content:"There is now " + count + " players"});
 
-                if (count == 2) {
+                if (count == 4) {
                     // Send back message that game is full
                     unicast(conn, {type:"message", content:"The game is full.  Come back later"});
                     // TODO: force a disconnect
@@ -361,11 +391,21 @@ function SockickServer() {
                     count--;
 
                     // Set nextPID to quitting player's PID
-                    nextPID = players[conn.id].pid;
+                    for (id in sockets) {
+                        var id;
+                        if (sockets[id] === conn){
+                            nextPID = parseInt(id);
+                        }
+                    }
+                    
+                    console.log("Player did quit: " + nextPID);
 
                     // Remove player who wants to quit/closed the window
                     if (players[conn.id] === p1) p1 = undefined;
                     if (players[conn.id] === p2) p2 = undefined;
+                    if (players[conn.id] === p3) p3 = undefined;                    
+                    if (players[conn.id] === p4) p4 = undefined;
+
                     delete players[conn.id];
 
                     // Sends to everyone connected to server except the client

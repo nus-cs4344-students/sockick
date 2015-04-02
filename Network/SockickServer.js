@@ -389,29 +389,6 @@ function SockickServer() {
                             console.log("server start");
                             startGame();
                             break;
-
-                        // one of the player moves the mouse.
-                        case "move":
-                            setTimeout(movePaddle, p.getDelay(), conn.id, message.x, message.timestamp);
-                            break;
-                            
-                        // one of the player moves the mouse.
-                        case "accelerate":
-                            setTimeout(acceleratePaddle, p.getDelay(), conn.id, message.vx, message.timestamp);
-                            break;
-
-                        // one of the player change the delay
-                        case "delay":
-                            players[conn.id].delay = message.delay;
-                            break;
-
-                        case "outOfBound":
-                            ball.reset();
-                            ball.outOfBound = false;
-                            // p1.paddle.reset();
-                            // p2.paddle.reset();
-                            //reset();
-                            break;
                         case "direction_changed":
                             player_change_direction(players[conn.id], message.new_direction);
                             break;

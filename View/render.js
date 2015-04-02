@@ -178,8 +178,8 @@ function Render() {
 		var data = {
 			images: ["Assets/ball.png"],
 			frames: {
-				width: 64,
-				height: 64,
+				width: Sockick.BALL_RADIUS * 2,
+				height: Sockick.BALL_RADIUS * 2,
 				count: 28
 			},
 			animations: {
@@ -201,8 +201,8 @@ function Render() {
 	}
 
 	this.updateBall = function(x, y) {
-		this.ballAnimation.x = x;
-		this.ballAnimation.y = y;
+		this.ballAnimation.x = x - Sockick.BALL_RADIUS;
+		this.ballAnimation.y = y - Sockick.BALL_RADIUS;
 	}
 }
 

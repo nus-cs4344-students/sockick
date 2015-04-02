@@ -12,10 +12,12 @@ var Sockick = {
 	//SERVER_NAME : "172.28.179.28",	// server name of Sockick game
 
 	// Constants:
-	PLAYER_RADIUS : 30,
+	PLAYER_RADIUS : 32,
 	PLAYER_WEIGHT : 140,
+	PLAYER_HEIGHT: 210,
+	PLAYER_WIDTH: 142,
 
-	BALL_RADIUS: 160,
+	BALL_RADIUS: 32,
 	BALL_WEIDHT: 1,
 }
 

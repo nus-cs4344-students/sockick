@@ -6,7 +6,7 @@
 var LIB_PATH = "./../";
 
 require(LIB_PATH + "Sockick.js");
-
+require(LIB_PATH + "Model/Player.js");
 require(LIB_PATH + "Lib/matter-0.8.0-modified.js");
 //require('matter-js');
 
@@ -79,8 +79,7 @@ function SockickServer() {
         
         count ++;
 
-        // 1st player is always top, 2nd player is always bottom
-        var initialPosition = (nextPID === 1) ? "left" : "right";
+        var initialPosition = (nextPID % 2 === 1) ? "left" : "right";
         var startPos;
 
         switch (nextPID){
@@ -110,32 +109,36 @@ function SockickServer() {
 
         // Create player object and insert into players with key = conn.id
         // @param: x, y, radius, options, maxSides
-        var player = Bodies.circle(startPos.x, startPos.y, Sockick.PLAYER_RADIUS, null, 25);
-        player.density = 0.01;
-        player.frictionAir = 0.05;
-        player.friction = 0.1;
-        player.restitution = 0.0;
+        var gameModel = Bodies.circle(startPos.x, startPos.y, Sockick.PLAYER_RADIUS, null, 25);
+        gameModel.density = 0.01;
+        gameModel.frictionAir = 0.05;
+        gameModel.friction = 0.1;
+        gameModel.restitution = 0.0;
 
-        World.addBody(engine.world, player);
+        var player = new Player(conn.id, nextPID);
+        player.gameModel = gameModel;
 
+        World.addBody(engine.world, gameModel);
 
         players[conn.id] = player;
         sockets[nextPID] = conn;
 
         console.log("Next pid: " + nextPID);
-        // Mark as player 1 or 2
+        
+        // Mark as player 1 to 4
         if (nextPID == 1) {
             p1 = players[conn.id];
+            nextPID = 2;
         } else if (nextPID == 2) {
             p2 = players[conn.id];
+            nextPID = 3;
         } else if (nextPID == 3){
             p3 = players[conn.id];
+            nextPID = 4;
         } else if (nextPID == 4){
             p4 = players[conn.id];
+            nextPID = 1;
         }
-
-        // Updates the nextPID to issue (flip-flop between 1 and 2)
-        nextPID = ((nextPID + 1) % 2 === 0) ? 2 : 1;
     }
 
     /*
@@ -156,7 +159,7 @@ function SockickServer() {
                 type: "update",
                 timestamp: currentTime,
                 ball_position: {x: ball.position.x, y: ball.position.y},
-                player_positions: [{x: p1.position.x, y: p1.position.y}]    
+                player_positions: [{x: p1.gameModel.position.x, y: p1.gameModel.position.y}]    
             };
 
             //console.log("State: " + p1.position.x + " " + p1.position.y);
@@ -271,23 +274,23 @@ function SockickServer() {
         console.log(newDirection);
         switch (newDirection){
             case "left":{
-                player_move_left(player);
+                model_move_left(player.gameModel);
                 break;
             }
             case "up":{
-                player_move_up(player);
+                model_move_up(player.gameModel);
                 break;
             }
             case "right":{
-                player_move_right(player);
+                model_move_right(player.gameModel);
                 break;
             }
             case "down":{
-                player_move_down(player);
+                model_move_down(player.gameModel);
                 break;
             }
             case "stop":{
-                player_stop(player);
+                model_stop(player.gameModel);
                 break;
             }
         }
@@ -296,60 +299,60 @@ function SockickServer() {
     // ======== Player Move ==========
     var deltaDistance = 10;
 
-    function player_move_left(player){
-        if (!is_player_moving_left(player)) {
-            player.position = {
-                x: player.position.x - deltaDistance - player.velocity.x, 
-                y: player.position.y};
+    function model_move_left(model){
+        if (!is_model_moving_left(model)) {
+            model.position = {
+                x: model.position.x - deltaDistance - model.velocity.x, 
+                y: model.position.y};
         }
     }
 
-    function player_move_right(player){
-        if (!is_player_moving_right(player)) {
-            player.position = {
-                x: player.position.x + deltaDistance - player.velocity.x, 
-                y: player.position.y};
+    function model_move_right(model){
+        if (!is_model_moving_right(model)) {
+            model.position = {
+                x: model.position.x + deltaDistance - model.velocity.x, 
+                y: model.position.y};
         }
     }
 
-    function player_move_up(player){
-        if (!is_player_moving_up(player)) {
-            player.position = {
-                x: player.position.x, 
-                y: player.position.y - deltaDistance - player.velocity.y};
+    function model_move_up(model){
+        if (!is_model_moving_up(model)) {
+            model.position = {
+                x: model.position.x, 
+                y: model.position.y - deltaDistance - model.velocity.y};
         }
     }
 
-    function player_move_down(player){
-        if (!is_player_moving_down(player)) {
-            player.position = {
-                x: player.position.x, 
-                y: player.position.y + deltaDistance - player.velocity.y};
+    function model_move_down(model){
+        if (!is_model_moving_down(model)) {
+            model.position = {
+                x: model.position.x, 
+                y: model.position.y + deltaDistance - model.velocity.y};
         }
     }
 
-    function player_stop(player){
-        player.position = {
-                x: player.position.x - player.velocity.x, 
-                y: player.position.y - player.velocity.y};
+    function model_stop(model){
+        model.position = {
+                x: model.position.x - model.velocity.x, 
+                y: model.position.y - model.velocity.y};
     }
 
     // ==== Predicates ====
 
-    function is_player_moving_left(player){
-        return player.velocity.x == -deltaDistance;
+    function is_model_moving_left(model){
+        return model.velocity.x == -deltaDistance;
     }
 
-    function is_player_moving_right(player){
-        return player.velocity.x == deltaDistance;
+    function is_model_moving_right(model){
+        return model.velocity.x == deltaDistance;
     }
 
-    function is_player_moving_up(player){
-        return player.velocity.y == -deltaDistance;
+    function is_model_moving_up(model){
+        return model.velocity.y == -deltaDistance;
     }
 
-    function is_player_moving_down(player){
-        return player.velocity.y == deltaDistance;
+    function is_model_moving_down(model){
+        return model.velocity.y == deltaDistance;
     }
 
     /*
@@ -401,13 +404,8 @@ function SockickServer() {
                     count--;
 
                     // Set nextPID to quitting player's PID
-                    for (id in sockets) {
-                        var id;
-                        if (sockets[id] === conn){
-                            nextPID = parseInt(id);
-                        }
-                    }
-                    
+                    nextPID = players[conn.id].pid; 
+
                     console.log("Player did quit: " + nextPID);
 
                     // Remove player who wants to quit/closed the window

@@ -61,8 +61,10 @@ function SockickServer() {
      * connection of a player is closed.
      */
     var reset = function () {
-        // Clears gameInterval and set it to undefined
-        if (gameInterval !== undefined) {
+        if (count % 2 === 0 && count > 0) {
+            // Game is fine
+        }
+        else if (gameInterval !== undefined) {
             clearInterval(gameInterval);
             gameInterval = undefined;
         }
@@ -123,7 +125,7 @@ function SockickServer() {
         players[conn.id] = player; // conn.id is a complex string
         sockets[nextPID] = conn; // nextPID is an integer
 
-        console.log("Next pid: " + nextPID);
+        console.log("A new player joined with pid: " + nextPID);
         
         // Mark as player 1 to 4
         if (nextPID == 1) {
@@ -159,7 +161,9 @@ function SockickServer() {
 
         for (socketID in players) {
             player = players[socketID]; // socketID === player.sid
-            console.log("Updating player with playerID: " + socketID);
+            
+            //console.log("Updating player with playerID: " + socketID);
+            
             if (player !== undefined) {
                 var states = { 
                     type: "update",
@@ -191,20 +195,22 @@ function SockickServer() {
     var startGame = function () {
 
         if (gameInterval !== undefined) {
-            // There is already a timer running so the game has 
-            // already started.
-            console.log("Already playing!");
+            console.log("Game already playing!");
+        } else{
+            console.log("Game is started again.");
+        }
 
-        } else if (Object.keys(players).length % 2 !== 0) {
+        if (count % 2 !== 0) { // Used to be: Object.keys(players).length, breaks abstraction.
             // We need even number of players to play.
             console.log("Not enough players!");
             broadcast({type:"message", content:"Not enough player"});
-
         } else {
             // Everything is a OK
             console.log("Starting game...");
             gameInterval = setInterval(function() {gameLoop();}, 1000/Sockick.FRAME_RATE);
-        }        
+        }   
+
+        console.log("In startGame(), player count: " + count);     
     }
 
     var initializeGameEngine = function () {
@@ -274,7 +280,7 @@ function SockickServer() {
     }
 
     function player_change_direction(player, newDirection){
-        console.log(newDirection);
+        //console.log(newDirection);
         switch (newDirection){
             case "left":{
                 model_move_left(player.gameModel);
@@ -387,9 +393,6 @@ function SockickServer() {
                 
                 console.log("connected");
 
-                // Try to start game. If we have a even number of players, it'll start.
-                startGame();
-
                 // Sends to client
                 broadcast({type:"message", content:"There is now " + count + " players"});
 
@@ -402,18 +405,20 @@ function SockickServer() {
                     newPlayer(conn); 
                 }
 
+                // Try to start game. If we have a even number of players, it'll start.
+                startGame();
+
                 // When the client closes the connection to the server/closes the window
                 conn.on('close', function () {
-                    // Stop game if it's playing
-                    reset();
 
                     // Decrease player counter
                     count--;
 
+                    console.log("Player did quit with conn.id: " + conn.id + " and current nextPID: " + nextPID);
                     // Set nextPID to quitting player's PID
                     nextPID = players[conn.id].pid; 
 
-                    console.log("Player did quit: " + nextPID);
+                    console.log("Player did quit. New nextPID: " + nextPID);
 
                     // Remove player who wants to quit/closed the window
                     if (players[conn.id] === p1) p1 = undefined;
@@ -422,6 +427,9 @@ function SockickServer() {
                     if (players[conn.id] === p4) p4 = undefined;
 
                     delete players[conn.id];
+
+                    // Stop game if it's playing
+                    reset();
 
                     // Sends to everyone connected to server except the client
                     broadcast({type:"message", content: " There is now " + count + " players."});

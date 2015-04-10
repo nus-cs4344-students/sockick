@@ -117,15 +117,42 @@ function SockickServer() {
         gameModel.friction = 0.1;
         gameModel.restitution = 0.0;
 
-        var player = new Player(conn.id, nextPID);
-        player.gameModel = gameModel;
+        var newPlayer = new Player(conn.id, nextPID);
+        newPlayer.gameModel = gameModel;
 
         World.addBody(engine.world, gameModel);
 
-        players[conn.id] = player; // conn.id is a complex string
+        players[conn.id] = newPlayer; // conn.id is a complex string
         sockets[nextPID] = conn; // nextPID is an integer
 
         console.log("A new player joined with pid: " + nextPID);
+
+        // Update the players with the new player:
+
+        var socketID;
+        var other_player;
+
+        var other_players = new Array();
+        for (socketID in players) {
+            other_player = players[socketID]; // socketID === player.sid
+            if (other_player !== undefined && other_player.pid !== newPlayer.pid){
+                other_players.push(player.pid);
+            }
+        }
+
+        var states = {
+            type: "add_player",
+            pid: newPlayer.pid,
+            is_self: false,
+            other_player_ids: other_players
+        }
+
+        for (var i = 0; i < other_players.length; i++) {
+            setTimeout(unicast, 0, sockets[other_players[i]].pid, states);
+        }
+
+        state.is_self = true;
+        setTimeout(unicast, 0, sockets[newPlayer.pid], states);
         
         // Mark as player 1 to 4
         if (nextPID == 1) {
@@ -159,6 +186,21 @@ function SockickServer() {
         var socketID;
         var player;
 
+        // Consturct the message:
+        var position_updates = new Array();
+        for (socketID in players) {
+            player = players[socketID]; // socketID === player.sid
+            if (player !== undefined){
+                position_updates.push({
+                    pid: player.pid,
+                    position: {
+                        x: player.gameModel.position.x, 
+                        y: player.gameModel.position.y
+                    }
+                });
+            }
+        }
+
         for (socketID in players) {
             player = players[socketID]; // socketID === player.sid
             
@@ -169,11 +211,9 @@ function SockickServer() {
                     type: "update",
                     timestamp: currentTime,
                     ball_position: {x: ball.position.x, y: ball.position.y},
-                    player_positions: [{x: player.gameModel.position.x, y: player.gameModel.position.y}]    
+                    player_positions: position_updates
                 };
-
                 //console.log("State: " + player.position.x + " " + player.position.y);
-            
                 setTimeout(unicast, 0, sockets[player.pid], states);
 
             } else{
@@ -214,8 +254,6 @@ function SockickServer() {
     }
 
     var initializeGameEngine = function () {
-        // create a Matter.js engine
-/**/
 
         engine = Engine.create(null, null);
 
@@ -401,7 +439,7 @@ function SockickServer() {
                     // TODO: force a disconnect
                 } else{
                     // create a new player. Count is added there.
-                    newPlayer(conn); 
+                    newPlayer(conn);
                 }
 
                 // Try to start game. If we have a even number of players, it'll start.

@@ -128,30 +128,32 @@ function SockickServer() {
         console.log("A new player joined with pid: " + nextPID);
 
         // Update the players with the new player:
-
-        var socketID;
-        var other_player;
-
-        var other_players = new Array();
-        for (socketID in players) {
-            other_player = players[socketID]; // socketID === player.sid
-            if (other_player !== undefined && other_player.pid !== newPlayer.pid){
-                other_players.push(player.pid);
-            }
-        }
+        var others = getAllOtherPlayersOtherThan(newPlayer.pid);
 
         var states = {
             type: "add_player",
             pid: newPlayer.pid,
             is_self: false,
-            other_player_ids: other_players
+            positon: {
+                x: newPlayer.gameModel.position.x,
+                y: newPlayer.gameModel.position.y,
+            },
+            other_players: others.map(function(player){
+                return {
+                    id: player.pid,
+                    position: {
+                        x: player.gameModel.position.x,
+                        y: player.gameModel.position.y
+                    }
+                };
+            }),
         }
 
-        for (var i = 0; i < other_players.length; i++) {
-            setTimeout(unicast, 0, sockets[other_players[i]].pid, states);
+        for (var i = 0; i < others.length; i++) {
+            setTimeout(unicast, 0, sockets[others[i]].pid, states);
         }
 
-        state.is_self = true;
+        states.is_self = true;
         setTimeout(unicast, 0, sockets[newPlayer.pid], states);
         
         // Mark as player 1 to 4
@@ -468,6 +470,9 @@ function SockickServer() {
                     // Stop game if it's playing
                     reset();
 
+                    // Update other players:
+
+
                     // Sends to everyone connected to server except the client
                     broadcast({type:"message", content: " There is now " + count + " players."});
                 });
@@ -515,6 +520,23 @@ function SockickServer() {
         //     console.log("Cannot listen to " + Sockick.PORT);
         //     console.log("Error: " + e);
         // }
+    }
+
+    var getAllOtherPlayersOtherThan = function(playerID){
+        
+        var other_players = new Array();
+
+        var socketID;
+        var other_player;
+
+        for (socketID in players) {
+            other_player = players[socketID]; // socketID === player.sid
+            if (other_player !== undefined && other_player.pid !== playerID){
+                other_players.push(other_player);
+            }
+        }
+
+        return other_players;
     }
 }
 

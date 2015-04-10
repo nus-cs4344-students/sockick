@@ -97,8 +97,8 @@ function SockickClient() {
                         // console.log(players);
                         break;
                     case "delete_player":
-                        // renderer.deletePlayer(message.pid);
-                        // delete players[message.pid];
+                         renderer.deletePlayer(message.pid);
+                         delete players[message.pid];
                         break;
                     default:
                         //appendMessage("serverMsg", "unhandled meesage type " + message.type);

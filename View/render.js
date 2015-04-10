@@ -283,7 +283,7 @@ function Render() {
 	}
 
 	this.deletePlayer = function(pid) {
-		
+		this.stage.removeChild(this.players[pid]);
 	}
 
 	this.updateBall = function(x, y) {

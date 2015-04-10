@@ -47,14 +47,18 @@ function SockickClient() {
                         if (t < lastUpdateAt)
                             break;
                         lastUpdateAt = t;
-                        //TBD
-
+                        
+                        // update ball
                         ball.x = message.ball_position.x;
                         ball.y = message.ball_position.y;
 
+                        // update players
                         var positions = message.player_positions;
                         var id;
                         for (id in positions) {
+                            if (positions[id] === undefined)
+                                continue;
+
                             var p = positions[id];
                             players[p.pid].x = p.position.x;
                             players[p.pid].y = p.position.y;
@@ -71,11 +75,13 @@ function SockickClient() {
                             myPid = message.pid;
 
                             // add other players information
-                            var others_id = message.other_player_ids;
+                            var others = message.other_players;
                             var id;
-                            for (id in others_id) {
+                            for (id in others) {
                                 var player = new Player();
-                                player.pid = others_id[id];
+                                player.pid = others[id];
+                                player.x = others[id].position.x;
+                                player.y = others[id].position.y;
                                 players[player.pid] = player;
                                 renderer.createPlayer(player.pid, false);
                             }
@@ -85,6 +91,8 @@ function SockickClient() {
                         renderer.createPlayer(message.pid, message.is_self);
                         var player = new Player();
                         player.pid = message.pid;
+                        player.x = message.position.x;
+                        player.y = message.position.y;
                         players[player.pid] = player;
 
                     case "delete_player":
@@ -200,7 +208,9 @@ function SockickClient() {
         //TBD
         var id;
         for (id in players) {
-            renderer.updatePlayers(players[id].pid, players[id] x, players[id].y);
+            if (players[id] == undefined)
+                continue;
+            renderer.updatePlayers(players[id].pid, players[id].x, players[id].y);
         }
         // renderer.updatePlayers(player1.pid, player1.x, player1.y);
         renderer.updateBall(ball.x, ball.y);

@@ -142,7 +142,7 @@ function Render() {
 
 	this.createPlayer = function(pid, isMyself) {
 		var data = {
-			images: ["Assets/player2.png"],
+			images: ["Assets/player1.png"],
 			frames: {
 				width: Sockick.PLAYER_WIDTH,
 				height: Sockick.PLAYER_HEIGHT,
@@ -203,12 +203,12 @@ function Render() {
 		this.players[pid].x = x;
 		this.players[pid].y = y;
 		var preX = x, preY = y;
-		console.log(x, y, preX, preY);
+		console.log(dx, dy);
 		console.log(this.players[pid].currentAnimation);
 		if (dx == 0 && dy == 0){
 	//	if(Math.abs(x-preX) <1 && Math.abs(y-preY) < 1){
 			this.players[pid].stop();
-			this.players[pid].currentAnimation = null;
+		//	this.players[pid].currentAnimation = null;
 			console.log("stop");
 		}
 		else{

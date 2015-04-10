@@ -209,8 +209,8 @@ function Render() {
 		this.players[pid].x = x;
 		this.players[pid].y = y;
 		var preX = x, preY = y;
-		console.log(dx, dy);
-		console.log(this.players[pid].currentAnimation);
+		
+	//	console.log(this.players[pid].currentAnimation);
 		if (dx == 0 && dy == 0){
 	//	if(Math.abs(x-preX) <1 && Math.abs(y-preY) < 1){
 			this.players[pid].stop();
@@ -221,17 +221,20 @@ function Render() {
 		if (dx == 0 && dy > 0){
 			if (this.players[pid].currentAnimation != "down") {
 				this.players[pid].gotoAndPlay("down");
+				console.log("down",dx, dy);
 			}
 			
 		}
 		if (dx == 0 && dy < 0){
 			if (this.players[pid].currentAnimation != "up") {
 				this.players[pid].gotoAndPlay("up");
+				console.log("up",dx, dy);
 			}
 		}
 		if (dx > 0 && dy == 0){
 			if (this.players[pid].currentAnimation != "right") {
 				this.players[pid].gotoAndPlay("right");
+				console.log("right",dx, dy);
 			}
 		}
 /*		if (dx > 0 && dy > 0){
@@ -248,6 +251,7 @@ function Render() {
 		if (dx < 0 && dy == 0){
 			if (this.players[pid].currentAnimation != "left") {
 				this.players[pid].gotoAndPlay("left");
+				console.log("left",dx, dy);
 			}
 			//this.players[pid].gotoAndPlay("left");
 		}
@@ -279,8 +283,27 @@ function Render() {
 	}
 
 	this.updateBall = function(x, y) {
+		var dx = x - Sockick.BALL_RADIUS -this.ballAnimation.x,
+			dy = y - Sockick.BALL_RADIUS - this.ballAnimation.y;
 
-		if (x - Sockick.BALL_RADIUS != this.ballAnimation.x ||
+		if(Math.abs(dx) < 0.5)
+			dx = 0;
+		if(Math.abs(dy) < 0.5)
+			dy = 0;
+
+		if(dx == 0 && dy == 0){
+			if (this.ballAnimation.currentAnimation !== "stand") {
+				this.ballAnimation.gotoAndPlay("stand");
+			}
+
+		}
+		else{
+			if (this.ballAnimation.currentAnimation !== "run") {
+				this.ballAnimation.gotoAndPlay("run");
+			}
+		}
+
+/*		if (x - Sockick.BALL_RADIUS != this.ballAnimation.x ||
 			y - Sockick.BALL_RADIUS != this.ballAnimation.y) {
 			if (this.ballAnimation.currentAnimation !== "run") {
 				this.ballAnimation.gotoAndPlay("run");
@@ -289,7 +312,7 @@ function Render() {
 			if (this.ballAnimation.currentAnimation !== "stand") {
 				this.ballAnimation.gotoAndPlay("stand");
 			}
-		}
+		}*/
 		this.ballAnimation.x = x - Sockick.BALL_RADIUS;
 		this.ballAnimation.y = y - Sockick.BALL_RADIUS;
 	}

@@ -278,6 +278,10 @@ function Render() {
 		}
 	}
 
+	this.deletePlayer = function(pid) {
+		
+	}
+
 	this.updateBall = function(x, y) {
 
 		if (x - Sockick.BALL_RADIUS != this.ballAnimation.x ||

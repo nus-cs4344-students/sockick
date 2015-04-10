@@ -142,7 +142,7 @@ function Render() {
 
 	this.createPlayer = function(pid, isMyself) {
 		var imagePath;
-		if (pid&2 == 0)
+		if (pid%2 == 0)
 			imagePath = "Assets/player2.png";
 		else
 			imagePath = "Assets/player1.png"
@@ -215,26 +215,26 @@ function Render() {
 	//	if(Math.abs(x-preX) <1 && Math.abs(y-preY) < 1){
 			this.players[pid].stop();
 		//	this.players[pid].currentAnimation = null;
-			console.log("stop");
+			// console.log("stop");
 		}
 		else{
 		if (dx == 0 && dy > 0){
 			if (this.players[pid].currentAnimation != "down") {
 				this.players[pid].gotoAndPlay("down");
-				console.log("down",dx, dy);
+				// console.log("down",dx, dy);
 			}
 			
 		}
 		if (dx == 0 && dy < 0){
 			if (this.players[pid].currentAnimation != "up") {
 				this.players[pid].gotoAndPlay("up");
-				console.log("up",dx, dy);
+				// console.log("up",dx, dy);
 			}
 		}
 		if (dx > 0 && dy == 0){
 			if (this.players[pid].currentAnimation != "right") {
 				this.players[pid].gotoAndPlay("right");
-				console.log("right",dx, dy);
+				// console.log("right",dx, dy);
 			}
 		}
 /*		if (dx > 0 && dy > 0){
@@ -251,7 +251,7 @@ function Render() {
 		if (dx < 0 && dy == 0){
 			if (this.players[pid].currentAnimation != "left") {
 				this.players[pid].gotoAndPlay("left");
-				console.log("left",dx, dy);
+				// console.log("left",dx, dy);
 			}
 			//this.players[pid].gotoAndPlay("left");
 		}

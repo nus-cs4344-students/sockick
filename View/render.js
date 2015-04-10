@@ -142,7 +142,7 @@ function Render() {
 
 	this.createPlayer = function(pid, isMyself) {
 		var data = {
-			images: ["Assets/player2.png"],
+			images: ["Assets/player1.png"],
 			frames: {
 				width: Sockick.PLAYER_WIDTH,
 				height: Sockick.PLAYER_HEIGHT,
@@ -196,32 +196,72 @@ function Render() {
 		var heightOffset = 60;
 		var dx = x - (Sockick.PLAYER_WIDTH / 2) - this.players[pid].x;
 		var dy = y - Sockick.PLAYER_HEIGHT + heightOffset - this.players[pid].y;
+		if(Math.abs(dx) < 1)
+			dx = 0;
+		if(Math.abs(dy) < 1)
+			dy = 0;
 		this.players[pid].x = x;
 		this.players[pid].y = y;
-
-		if (dx == 0 && dy == 0)
+		var preX = x, preY = y;
+		console.log(dx, dy);
+		console.log(this.players[pid].currentAnimation);
+		if (dx == 0 && dy == 0){
+	//	if(Math.abs(x-preX) <1 && Math.abs(y-preY) < 1){
 			this.players[pid].stop();
-		if (dx == 0 && dy > 0)
-			this.players[pid].gotoAndPlay("down");
-		if (dx == 0 && dy < 0)
-			this.players[pid].gotoAndPlay("up");
-		if (dx > 0 && dy == 0)
-			this.players[pid].gotoAndPlay("right");
-		if (dx > 0 && dy > 0)
-			this.players[pid].gotoAndPlay("right_down");
-		if (dx > 0 && dy < 0)
-			this.players[pid].gotoAndPlay("right_up");
-		if (dx < 0 && dy == 0)
-			this.players[pid].gotoAndPlay("left");
-		if (dx < 0 && dy > 0)
-			this.players[pid].gotoAndPlay("left_down");
-		if (dx < 0 && dy < 0)
-			this.players[pid].gotoAndPlay("left_up");
+		//	this.players[pid].currentAnimation = null;
+			console.log("stop");
+		}
+		else{
+		if (dx == 0 && dy > 0){
+			if (this.players[pid].currentAnimation != "down") {
+				this.players[pid].gotoAndPlay("down");
+			}
+			
+		}
+		if (dx == 0 && dy < 0){
+			if (this.players[pid].currentAnimation != "up") {
+				this.players[pid].gotoAndPlay("up");
+			}
+		}
+		if (dx > 0 && dy == 0){
+			if (this.players[pid].currentAnimation != "right") {
+				this.players[pid].gotoAndPlay("right");
+			}
+		}
+/*		if (dx > 0 && dy > 0){
+			if (this.players[pid].currentAnimation != "right_down") {
+				this.players[pid].gotoAndPlay("right_down");
+			}
+		}
+		if (dx > 0 && dy < 0){
+			if (this.players[pid].currentAnimation != "right_up") {
+				this.players[pid].gotoAndPlay("right_up");
+			}
+		//	this.players[pid].gotoAndPlay("right_up");
+		}*/
+		if (dx < 0 && dy == 0){
+			if (this.players[pid].currentAnimation != "left") {
+				this.players[pid].gotoAndPlay("left");
+			}
+			//this.players[pid].gotoAndPlay("left");
+		}
+/*		if (dx < 0 && dy > 0){
+			if (this.players[pid].currentAnimation != "left_down") {
+				this.players[pid].gotoAndPlay("left_down");
+			}
+
+		}
+		if (dx < 0 && dy < 0){
+			if (this.players[pid].currentAnimation != "left_up") {
+				this.players[pid].gotoAndPlay("left_up");
+			}
+			// this.players[pid].gotoAndPlay("left_up");
+		}*/
 
 		if (dx != 0 || dy != 0){
 			//console.log("moving");
 		}
-
+	}
 		this.players[pid].x = x - (Sockick.PLAYER_WIDTH / 2);
 		this.players[pid].y = y - Sockick.PLAYER_HEIGHT + heightOffset;
 		// this.players[pid].setTransform(x,y);

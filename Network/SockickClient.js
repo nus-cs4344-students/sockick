@@ -40,9 +40,10 @@ function SockickClient() {
         socket = new SockJS("http://" + Sockick.SERVER_NAME + ":" + Sockick.PORT + "/sockick");
         socket.onmessage = function(e) {
                 var message = JSON.parse(e.data);
-                console.log(message);
+                // console.log(message);
                 switch (message.type) {
                     case "update":
+
                         var t = message.timestamp;
                         if (t < lastUpdateAt)
                             break;
@@ -56,8 +57,6 @@ function SockickClient() {
                         var positions = message.player_positions;
                         var id;
                         for (id in positions) {
-                            if (players[positions[id].pid] === undefined)
-                                continue;
 
                             var p = positions[id];
                             players[p.pid].x = p.position.x;
@@ -68,9 +67,6 @@ function SockickClient() {
                         break;
                     case "add_player":
 
-                        //if player exits
-                        if (players[message.pid] !== undefined)
-                            break;
                         if (message.is_self) {
                             myPid = message.pid;
 
@@ -78,12 +74,15 @@ function SockickClient() {
                             var others = message.other_players;
                             var id;
                             for (id in others) {
+
                                 var player = new Player();
-                                player.pid = others[id];
+                                player.pid = others[id].id;
                                 player.x = others[id].position.x;
                                 player.y = others[id].position.y;
                                 players[player.pid] = player;
+
                                 renderer.createPlayer(player.pid, false);
+                                console.log("add player :"+player.pid);
                             }
                         }
 
@@ -93,11 +92,13 @@ function SockickClient() {
                         player.pid = message.pid;
                         player.x = message.position.x;
                         player.y = message.position.y;
-                        players[player.pid] = player;
-
+                        players[message.pid] = player;
+                        // console.log("add player :"+player.pid);
+                        // console.log(players);
+                        break;
                     case "delete_player":
-                        renderer.deletePlayer(message.pid);
-                        players[message.pid] = undefined;
+                         renderer.deletePlayer(message.pid);
+                         delete players[message.pid];
                         break;
                     default:
                         //appendMessage("serverMsg", "unhandled meesage type " + message.type);
@@ -207,8 +208,9 @@ function SockickClient() {
     var render = function() {
         //TBD
         var id;
+
         for (id in players) {
-            if (players[id] == undefined)
+            if (players[id] === undefined)
                 continue;
             renderer.updatePlayers(players[id].pid, players[id].x, players[id].y);
         }

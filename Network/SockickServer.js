@@ -16,8 +16,8 @@ function SockickServer() {
     var count;        // Keeps track how many people are connected to server 
     var nextPID;      // PID to assign to next connected player (i.e. which player slot is open) 
     var gameInterval; // Interval variable used for gameLoop 
-    var sockets;      // Associative array for sockets, indexed via player ID
-    var players;      // Associative array for players, indexed via socket ID
+    var sockets;      // Associative array for sockets, indexed via player ID, an integer
+    var players;      // Associative array for players, indexed via socket ID, a complexed string
     var p1, p2, p3, p4;       // Players
     var ball;         // the game football 
 
@@ -120,8 +120,8 @@ function SockickServer() {
 
         World.addBody(engine.world, gameModel);
 
-        players[conn.id] = player;
-        sockets[nextPID] = conn;
+        players[conn.id] = player; // conn.id is a complex string
+        sockets[nextPID] = conn; // nextPID is an integer
 
         console.log("Next pid: " + nextPID);
         
@@ -154,23 +154,30 @@ function SockickServer() {
         var date = new Date();
         var currentTime = date.getTime();
 
-        if (p1 !== undefined) {
-            var states = { 
-                type: "update",
-                timestamp: currentTime,
-                ball_position: {x: ball.position.x, y: ball.position.y},
-                player_positions: [{x: p1.gameModel.position.x, y: p1.gameModel.position.y}]    
-            };
+        var socketID;
+        var player;
 
-            //console.log("State: " + p1.position.x + " " + p1.position.y);
-        
-            setTimeout(unicast, 0, sockets[1], states);
-        } else{
-            console.log("p1 is undefined now");
+        for (socketID in players) {
+            player = players[socketID]; // socketID === player.sid
+            console.log("Updating player with playerID: " + socketID);
+            if (player !== undefined) {
+                var states = { 
+                    type: "update",
+                    timestamp: currentTime,
+                    ball_position: {x: ball.position.x, y: ball.position.y},
+                    player_positions: [{x: player.gameModel.position.x, y: player.gameModel.position.y}]    
+                };
+
+                //console.log("State: " + player.position.x + " " + player.position.y);
+            
+                setTimeout(unicast, 0, sockets[player.pid], states);
+
+            } else{
+                console.log("player is undefined now with ID: " + socketID);
+            }
         }
-        
         Engine.update(engine, 1000/Sockick.FRAME_RATE);
-        // TODO: repeat the above for more players.
+        // TODO: check win/lost conditions.
     }
 
     /*
@@ -183,25 +190,21 @@ function SockickServer() {
      */
     var startGame = function () {
 
-        /*
         if (gameInterval !== undefined) {
             // There is already a timer running so the game has 
             // already started.
             console.log("Already playing!");
 
-        } else if (Object.keys(players).length < 2) {
-            // We need two players to play.
+        } else if (Object.keys(players).length % 2 !== 0) {
+            // We need even number of players to play.
             console.log("Not enough players!");
             broadcast({type:"message", content:"Not enough player"});
 
         } else {
             // Everything is a OK
-            ball.startMoving();
+            console.log("Starting game...");
             gameInterval = setInterval(function() {gameLoop();}, 1000/Sockick.FRAME_RATE);
-        }
-        */
-        console.log("Starting game...");
-        gameInterval = setInterval(function() {gameLoop();}, 1000/Sockick.FRAME_RATE);
+        }        
     }
 
     var initializeGameEngine = function () {
@@ -376,13 +379,17 @@ function SockickServer() {
             gameInterval = undefined;
             players = new Object;
             sockets = new Object;
-            
+
             initializeGameEngine();
 
             // Upon connection established from a client socket
             sock.on('connection', function (conn) {
+                
                 console.log("connected");
+
+                // Try to start game. If we have a even number of players, it'll start.
                 startGame();
+
                 // Sends to client
                 broadcast({type:"message", content:"There is now " + count + " players"});
 
@@ -390,9 +397,9 @@ function SockickServer() {
                     // Send back message that game is full
                     unicast(conn, {type:"message", content:"The game is full.  Come back later"});
                     // TODO: force a disconnect
-                } else {
-                    // create a new player
-                    newPlayer(conn);
+                } else{
+                    // create a new player. Count is added there.
+                    newPlayer(conn); 
                 }
 
                 // When the client closes the connection to the server/closes the window

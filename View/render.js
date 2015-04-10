@@ -282,6 +282,10 @@ function Render() {
 		}
 	}
 
+	this.deletePlayer = function(pid) {
+		
+	}
+
 	this.updateBall = function(x, y) {
 		var dx = x - Sockick.BALL_RADIUS -this.ballAnimation.x,
 			dy = y - Sockick.BALL_RADIUS - this.ballAnimation.y;

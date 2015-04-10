@@ -1,4 +1,3 @@
-
 // enforce strict/clean programming
 "use strict";
 
@@ -7,10 +6,13 @@ function SockickClient() {
     var socket; // socket used to connect to server 
     var playArea; // HTML5 canvas game window 
     var ball; // ball object in game 
-    
+
     var lastUpdateAt = 0; // timestamp of last recv update
 
-    var player1;
+
+    // player list
+    var players = [Sockick.MAXIMUM_PLAYER];
+    var myPid;
 
     /*
      * private method: sendToServer(msg)
@@ -35,29 +37,75 @@ function SockickClient() {
     var initNetwork = function() {
         // Attempts to connect to game server
         //try {
-            socket = new SockJS("http://" + Sockick.SERVER_NAME + ":" + Sockick.PORT + "/sockick");
-            socket.onmessage = function(e) {
+        socket = new SockJS("http://" + Sockick.SERVER_NAME + ":" + Sockick.PORT + "/sockick");
+        socket.onmessage = function(e) {
                 var message = JSON.parse(e.data);
+                console.log(message);
                 switch (message.type) {
                     case "update":
                         var t = message.timestamp;
                         if (t < lastUpdateAt)
                             break;
                         lastUpdateAt = t;
-                        //TBD
+                        
+                        // update ball
                         ball.x = message.ball_position.x;
                         ball.y = message.ball_position.y;
-                        player1.x = message.player_positions[0].x;
-                        player1.y = message.player_positions[0].y;
+
+                        // update players
+                        var positions = message.player_positions;
+                        var id;
+                        for (id in positions) {
+                            if (positions[id] === undefined)
+                                continue;
+
+                            var p = positions[id];
+                            players[p.pid].x = p.position.x;
+                            players[p.pid].y = p.position.y;
+                        }
+
                         render();
+                        break;
+                    case "add_player":
+
+                        //if player exits
+                        if (players[message.pid] !== undefined)
+                            break;
+                        if (message.is_self) {
+                            myPid = message.pid;
+
+                            // add other players information
+                            var others = message.other_players;
+                            var id;
+                            for (id in others) {
+                                var player = new Player();
+                                player.pid = others[id];
+                                player.x = others[id].position.x;
+                                player.y = others[id].position.y;
+                                players[player.pid] = player;
+                                renderer.createPlayer(player.pid, false);
+                            }
+                        }
+
+                        //add myself
+                        renderer.createPlayer(message.pid, message.is_self);
+                        var player = new Player();
+                        player.pid = message.pid;
+                        player.x = message.position.x;
+                        player.y = message.position.y;
+                        players[player.pid] = player;
+
+                    case "delete_player":
+                        renderer.delete_player(message.pid);
+                        players[message.pid] = undefined;
                         break;
                     default:
                         //appendMessage("serverMsg", "unhandled meesage type " + message.type);
                 }
             }
-        // } catch (e) {
-        //     console.log("Failed to connect to " + "http://" + Sockick.SERVER_NAME + ":" + Sockick.PORT);
-        // }
+            // } catch (e) {
+            //     console.log("Failed to connect to " + "http://" + Sockick.SERVER_NAME + ":" + Sockick.PORT);
+            // }
     }
 
     /*
@@ -77,7 +125,7 @@ function SockickClient() {
         document.onkeyup = function(evt) {
             onTouchEnd(evt);
         }
-            
+
 
         //TBD
 
@@ -95,7 +143,7 @@ function SockickClient() {
                 new_direction: "stop"
             });
         };
-        
+
     }
 
 
@@ -149,7 +197,7 @@ function SockickClient() {
         }
     }
 
-    
+
     /*
      * private method: render
      *
@@ -158,7 +206,13 @@ function SockickClient() {
      */
     var render = function() {
         //TBD
-        renderer.updatePlayers(player1.pid, player1.x, player1.y);
+        var id;
+        for (id in players) {
+            if (players[id] == undefined)
+                continue;
+            renderer.updatePlayers(players[id].pid, players[id].x, players[id].y);
+        }
+        // renderer.updatePlayers(player1.pid, player1.x, player1.y);
         renderer.updateBall(ball.x, ball.y);
     }
 
@@ -172,10 +226,10 @@ function SockickClient() {
     this.start = function() {
         // Initialize game objects
         ball = new Ball();
-        player1 = new Player();
-        player1.pid = 1;
+        // player1 = new Player();
+        // player1.pid = 1;
         renderer.init();
-        renderer.createPlayer(1, true);
+        // renderer.createPlayer(1, true);
         // Initialize network and GUI
         initNetwork();
         initGUI();

@@ -209,8 +209,7 @@ function SockickServer() {
 
     var initializeGameEngine = function () {
         // create a Matter.js engine
-        var jsdom = require("jsdom").jsdom;
-        var document = jsdom("hello world");
+/**/
 
         engine = Engine.create(null, null);
 

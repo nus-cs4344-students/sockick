@@ -141,8 +141,13 @@ function Render() {
 	}
 
 	this.createPlayer = function(pid, isMyself) {
+		var imagePath;
+		if (pid&2 == 0)
+			imagePath = "Assets/player2.png";
+		else
+			imagePath = "Assets/player1.png"
 		var data = {
-			images: ["Assets/player2.png"],
+			images: [imagePath],
 			frames: {
 				width: Sockick.PLAYER_WIDTH,
 				height: Sockick.PLAYER_HEIGHT,

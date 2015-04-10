@@ -140,7 +140,7 @@ function SockickServer() {
             },
             other_players: others.map(function(player){
                 return {
-                    id: player.pid,
+                    pid: player.pid,
                     position: {
                         x: player.gameModel.position.x,
                         y: player.gameModel.position.y
@@ -461,7 +461,7 @@ function SockickServer() {
 
                     console.log("Player did quit with conn.id: " + conn.id + " and current nextPID: " + nextPID);
                     // Set nextPID to quitting player's PID
-                    nextPID = players[conn.id].pid; 
+                    nextPID = players[conn.id].pid;
 
                     console.log("Player did quit. New nextPID: " + nextPID);
 
@@ -476,8 +476,8 @@ function SockickServer() {
                     // Stop game if it's playing
                     reset();
 
-                    // Update other players:
-
+                    // Update players:
+                    broadcast({type: "delete_player", id: players[conn.id].pid});
 
                     // Sends to everyone connected to server except the client
                     broadcast({type:"message", content: " There is now " + count + " players."});

@@ -11,7 +11,7 @@ function SockickClient() {
 
 
     // player list
-    var players = [Sockick.MAXIMUM_PLAYER];
+    var players = {};
     var myPid;
 
     /*
@@ -56,7 +56,7 @@ function SockickClient() {
                         var positions = message.player_positions;
                         var id;
                         for (id in positions) {
-                            if (positions[id] === undefined)
+                            if (players[positions[id].pid] === undefined)
                                 continue;
 
                             var p = positions[id];
@@ -96,7 +96,7 @@ function SockickClient() {
                         players[player.pid] = player;
 
                     case "delete_player":
-                        renderer.delete_player(message.pid);
+                        renderer.deletePlayer(message.pid);
                         players[message.pid] = undefined;
                         break;
                     default:

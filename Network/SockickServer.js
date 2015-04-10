@@ -134,7 +134,7 @@ function SockickServer() {
             type: "add_player",
             pid: newPlayer.pid,
             is_self: false,
-            positon: {
+            position: {
                 x: newPlayer.gameModel.position.x,
                 y: newPlayer.gameModel.position.y,
             },
@@ -149,13 +149,19 @@ function SockickServer() {
             }),
         }
 
+        var statesJSON = JSON.stringify(states);
+
         for (var i = 0; i < others.length; i++) {
-            setTimeout(unicast, 0, sockets[others[i]].pid, states);
+            var new_other_player = others[i];
+            setTimeout(unicast, 0, sockets[new_other_player.pid], states);
+            console.log("New user added. Sending " + states.is_self + " to pid: " + new_other_player.pid);
         }
 
+        states = JSON.parse(statesJSON);
         states.is_self = true;
         setTimeout(unicast, 0, sockets[newPlayer.pid], states);
-        
+        console.log("New user added. Sending " + states.is_self + " to pid: " + newPlayer.pid);
+
         // Mark as player 1 to 4
         if (nextPID == 1) {
             p1 = players[conn.id];

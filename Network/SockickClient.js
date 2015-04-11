@@ -113,6 +113,9 @@ function SockickClient() {
                         renderer.deletePlayer(message.pid);
                         delete players[message.pid];
                         break;
+                    case "goal":
+                        renderer.setScore(message.leftscore, message.rightscore);
+                        break;
                     default:
                         //appendMessage("serverMsg", "unhandled meesage type " + message.type);
                 }

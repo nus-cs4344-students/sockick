@@ -25,6 +25,8 @@ function SockickServer() {
     var World = Matter.World;
     var Bodies = Matter.Bodies;
     var engine;
+    var leftScore = 0;
+    var rightScore = 0;
 
     /*
      * private method: broadcast(msg)
@@ -213,10 +215,16 @@ function SockickServer() {
                     //console.log("State: " + player.position.x + " " + player.position.y);
                     setTimeout(unicast, 0, sockets[player.pid], states);
                 } else {
+                    if (goal_status == 1) {
+                        rightScore ++;
+                    } else {
+                        leftScore ++;
+                    }
                     var states = { 
                         type: "goal",
                         timestamp: currentTime,
-                        goal_team: 3 - goal_status
+                        leftscore: leftScore,
+                        rightscore: rightScore
                     };
                     setTimeout(unicast, 0, sockets[player.pid], states);
                 }

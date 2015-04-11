@@ -75,6 +75,7 @@ function SockickClient() {
                                 players[p.pid].y = p.position.y;
                             }
                         }
+                        renderer.setTimeLeft(message.timeleft);
 
                         render();
                         break;
@@ -112,6 +113,9 @@ function SockickClient() {
                     case "delete_player":
                         renderer.deletePlayer(message.pid);
                         delete players[message.pid];
+                        break;
+                    case "goal":
+                        renderer.setScore(message.leftscore, message.rightscore);
                         break;
                     default:
                         //appendMessage("serverMsg", "unhandled meesage type " + message.type);

@@ -25,6 +25,9 @@ function SockickServer() {
     var World = Matter.World;
     var Bodies = Matter.Bodies;
     var engine;
+    var leftScore = 0;
+    var rightScore = 0;
+    var gameTicksLeft = Sockick.GAME_DURATION * Sockick.FRAME_RATE;
 
     /*
      * private method: broadcast(msg)
@@ -156,6 +159,12 @@ function SockickServer() {
         }
     }
 
+    var computeTimeLeft = function() {
+        var minLeft = Math.floor(Math.floor(gameTicksLeft / Sockick.FRAME_RATE) / 60);
+        var secLeft = Math.floor(gameTicksLeft / Sockick.FRAME_RATE) % 60;
+        return minLeft + ":" + secLeft;
+    }
+
     /*
      * private method: gameLoop()
      *
@@ -168,7 +177,8 @@ function SockickServer() {
         
         var date = new Date();
         var currentTime = date.getTime();
-
+        gameTicksLeft --;
+        var timeLeft = computeTimeLeft();
         var socketID;
         var player;
         var goal_status = check_goal();
@@ -214,15 +224,18 @@ function SockickServer() {
                         type: "update",
                         timestamp: currentTime,
                         ball_position: {x: ball.position.x, y: ball.position.y},
+                        timeleft: timeLeft,
                         player_positions: position_updates
                     };
                     //console.log("State: " + player.position.x + " " + player.position.y);
                     setTimeout(unicast, 0, sockets[player.pid], states);
                 } else {
+                    
                     var states = { 
                         type: "goal",
                         timestamp: currentTime,
-                        goal_team: 3 - goal_status
+                        leftscore: leftScore,
+                        rightscore: rightScore
                     };
                     setTimeout(unicast, 0, sockets[player.pid], states);
                 }
@@ -377,11 +390,13 @@ function SockickServer() {
         if (ball.position.x <= Sockick.BALL_RADIUS * 2) {
             if (ball.position.y >= Sockick.HEIGHT / 2 - Sockick.GATE_WIDTH / 2 + Sockick.BALL_RADIUS && ball.position.y <= Sockick.HEIGHT / 2 + Sockick.GATE_WIDTH / 2 - Sockick.BALL_RADIUS) {
                 console.log("Right goal!");
+                rightScore ++;
                 return 1;
             }
         } else if (ball.position.x >= Sockick.WIDTH - Sockick.BALL_RADIUS) {
             if (ball.position.y >= Sockick.HEIGHT / 2 - Sockick.GATE_WIDTH / 2 + Sockick.BALL_RADIUS && ball.position.y <= Sockick.HEIGHT / 2 + Sockick.GATE_WIDTH / 2 - Sockick.BALL_RADIUS) {
                 console.log("Left goal!");
+                leftScore ++;
                 return 2;
             }
         }

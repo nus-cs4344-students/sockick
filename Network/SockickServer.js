@@ -61,7 +61,7 @@ function SockickServer() {
      * connection of a player is closed.
      */
     var reset = function () {
-        if (count % 2 === 0 && count > 0) {
+        if (count > 1) {
             // Game is fine
         }
         else if (gameInterval !== undefined) {
@@ -82,29 +82,9 @@ function SockickServer() {
         count ++;
 
         var initialPosition = (nextPID % 2 === 1) ? "left" : "right";
-        var startPos;
+        var startPos = initialise_player_position(nextPID);
 
-        switch (nextPID){
-            case 1:{
-                startPos = {x: Sockick.WIDTH / 4, y: Sockick.HEIGHT / 4};
-                break;
-            }
-            case 2:{
-                startPos = {x: 3 * Sockick.WIDTH / 4, y: Sockick.HEIGHT / 4};
-                break;
-            }
-            case 3:{
-                startPos = {x: Sockick.WIDTH / 4, y: 3 * Sockick.HEIGHT / 4};
-                break;
-            }
-            case 4:{
-                startPos = {x: 3 * Sockick.WIDTH / 4, y: 3 * Sockick.HEIGHT / 4};
-                break;
-            }
-            default:{
-                console.log("Error: invalid nextPID: " + nextPID + typeof(nextPID));
-            }
-        }
+        
 
         // Send message to new player (the current client)
         unicast(conn, {type: "message", content:"You are Player " + nextPID + ". Your position is at the " + initialPosition});
@@ -113,8 +93,8 @@ function SockickServer() {
         // @param: x, y, radius, options, maxSides
         var gameModel = Bodies.circle(startPos.x, startPos.y, Sockick.PLAYER_RADIUS, null, 25);
         gameModel.density = 0.01;
-        gameModel.frictionAir = 0.05;
-        gameModel.friction = 0.1;
+        gameModel.frictionAir = Sockick.PLAYER_FRICTION_AIR;
+        gameModel.friction = Sockick.PLAYER_FRICTION;
         gameModel.restitution = 0.0;
 
         var newPlayer = new Player(conn.id, nextPID);
@@ -140,7 +120,7 @@ function SockickServer() {
             },
             other_players: others.map(function(player){
                 return {
-                    id: player.pid,
+                    pid: player.pid,
                     position: {
                         x: player.gameModel.position.x,
                         y: player.gameModel.position.y
@@ -193,6 +173,11 @@ function SockickServer() {
 
         var socketID;
         var player;
+        var goal_status = check_goal();
+        if (goal_status != 0) {
+            console.log("Goal status is " + goal_status);
+            initializeGameEngine();
+        }
 
         // Consturct the message:
         var position_updates = new Array();
@@ -209,21 +194,32 @@ function SockickServer() {
             }
         }
 
+        var goal_status = check_goal();
+
+
         for (socketID in players) {
             player = players[socketID]; // socketID === player.sid
             
             //console.log("Updating player with playerID: " + socketID);
             
             if (player !== undefined) {
-                var states = { 
-                    type: "update",
-                    timestamp: currentTime,
-                    ball_position: {x: ball.position.x, y: ball.position.y},
-                    player_positions: position_updates
-                };
-                //console.log("State: " + player.position.x + " " + player.position.y);
-                setTimeout(unicast, 0, sockets[player.pid], states);
-
+                if (goal_status == 0) {
+                    var states = { 
+                        type: "update",
+                        timestamp: currentTime,
+                        ball_position: {x: ball.position.x, y: ball.position.y},
+                        player_positions: position_updates
+                    };
+                    //console.log("State: " + player.position.x + " " + player.position.y);
+                    setTimeout(unicast, 0, sockets[player.pid], states);
+                } else {
+                    var states = { 
+                        type: "goal",
+                        timestamp: currentTime,
+                        goal_team: 3 - goal_status
+                    };
+                    setTimeout(unicast, 0, sockets[player.pid], states);
+                }
             } else{
                 console.log("player is undefined now with ID: " + socketID);
             }
@@ -244,11 +240,7 @@ function SockickServer() {
 
         if (gameInterval !== undefined) {
             console.log("Game already playing!");
-        } else{
-            console.log("Game is started again.");
-        }
-
-        if (count % 2 !== 0) { // Used to be: Object.keys(players).length, breaks abstraction.
+        } else if (count === 1) { // Used to be: Object.keys(players).length, breaks abstraction.
             // We need even number of players to play.
             console.log("Not enough players!");
             broadcast({type:"message", content:"Not enough player"});
@@ -256,7 +248,7 @@ function SockickServer() {
             // Everything is a OK
             console.log("Starting game...");
             gameInterval = setInterval(function() {gameLoop();}, 1000/Sockick.FRAME_RATE);
-        }   
+        }
 
         console.log("In startGame(), player count: " + count);     
     }
@@ -269,7 +261,7 @@ function SockickServer() {
 
         var width = Sockick.WIDTH;
         var height = Sockick.HEIGHT;
-        var wall_thickness = 500;
+        var wall_thickness = 1000;
         var options =  { isStatic: true,};
 
         var wall_top = Bodies.rectangle(
@@ -326,6 +318,8 @@ function SockickServer() {
 
     function player_change_direction(player, newDirection){
         //console.log(newDirection);
+        player.gameModel.frictionAir = 0.00;
+        player.gameModel.friction = 0.00;
         switch (newDirection){
             case "left":{
                 model_move_left(player.gameModel);
@@ -343,9 +337,68 @@ function SockickServer() {
                 model_move_down(player.gameModel);
                 break;
             }
+            case "up_right":{
+                model_move_up(player.gameModel);
+                model_move_right(player.gameModel);
+                break;
+            }
+            case "up_left":{
+                model_move_up(player.gameModel);
+                model_move_left(player.gameModel);
+                break;
+            }
+            case "down_right":{
+                model_move_down(player.gameModel);
+                model_move_right(player.gameModel);
+
+                break;
+            }
+            case "down_left":{
+                model_move_down(player.gameModel);
+                model_move_left(player.gameModel);
+                break;
+            }
             case "stop":{
+                player.gameModel.friction = Sockick.PLAYER_FRICTION;
+                player.gameModel.frictionAir = Sockick.PLAYER_FRICTION_AIR;
                 model_stop(player.gameModel);
                 break;
+            }
+        }
+    }
+
+    function check_goal() {
+        if (ball.position.x <= Sockick.BALL_RADIUS * 2) {
+            if (ball.position.y >= Sockick.HEIGHT / 2 - Sockick.GATE_WIDTH / 2 + Sockick.BALL_RADIUS && ball.position.y <= Sockick.HEIGHT / 2 + Sockick.GATE_WIDTH / 2 - Sockick.BALL_RADIUS) {
+                console.log("Right goal!");
+                return 1;
+            }
+        } else if (ball.position.x >= Sockick.WIDTH - Sockick.BALL_RADIUS) {
+            if (ball.position.y >= Sockick.HEIGHT / 2 - Sockick.GATE_WIDTH / 2 + Sockick.BALL_RADIUS && ball.position.y <= Sockick.HEIGHT / 2 + Sockick.GATE_WIDTH / 2 - Sockick.BALL_RADIUS) {
+                console.log("Left goal!");
+                return 2;
+            }
+        }
+        return 0;
+    }
+
+    function initialise_player_position(nextPID) {
+        switch (nextPID){
+            case 1:{
+                return {x: Sockick.WIDTH / 4, y: Sockick.HEIGHT / 4};
+            }
+            case 2:{
+                return {x: 3 * Sockick.WIDTH / 4, y: Sockick.HEIGHT / 4};
+            }
+            case 3:{
+                return {x: Sockick.WIDTH / 4, y: 3 * Sockick.HEIGHT / 4};
+            }
+            case 4:{
+                return {x: 3 * Sockick.WIDTH / 4, y: 3 * Sockick.HEIGHT / 4};
+            }
+            default:{
+                console.log("Error: invalid nextPID: " + nextPID + typeof(nextPID));
+                return "invalid pid";
             }
         }
     }
@@ -461,9 +514,15 @@ function SockickServer() {
 
                     console.log("Player did quit with conn.id: " + conn.id + " and current nextPID: " + nextPID);
                     // Set nextPID to quitting player's PID
-                    nextPID = players[conn.id].pid; 
+                    nextPID = players[conn.id].pid;
 
                     console.log("Player did quit. New nextPID: " + nextPID);
+
+                    // Update players:
+                    broadcast({type: "delete_player", pid: players[conn.id].pid});
+
+                    // Remove gameModel from engine:
+                    Matter.Composite.removeBody(engine.world, players[conn.id].gameModel);
 
                     // Remove player who wants to quit/closed the window
                     if (players[conn.id] === p1) p1 = undefined;
@@ -475,9 +534,6 @@ function SockickServer() {
 
                     // Stop game if it's playing
                     reset();
-
-                    // Update other players:
-
 
                     // Sends to everyone connected to server except the client
                     broadcast({type:"message", content: " There is now " + count + " players."});

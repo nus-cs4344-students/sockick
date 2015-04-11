@@ -171,14 +171,26 @@ function Render() {
 		};
 		var spriteSheet = new createjs.SpriteSheet(data);
 		var playerAnimation = new createjs.Sprite(spriteSheet, "stay_left");
+		playerAnimation.shadow = new createjs.Shadow("#0E140F", 5, 5, 4);
 		this.players[pid] = playerAnimation;
 		this.stage.addChild(playerAnimation);
 
 		if (isMyself) {
+			this.my_id = pid;
+			this.meArrow = new createjs.Bitmap("Assets/arrow.png");
+			this.meArrow.scaleX = 0.5;
+			this.meArrow.scaleY = 0.5;
+			this.stage.addChild(this.meArrow);
 			this.myLabel = new createjs.Text("Me", "8px Comic Sans MS", "#000000");
 			this.myLabel.x = playerAnimation.x + 50;
 			this.myLabel.y = playerAnimation.y + 10;
+<<<<<<< HEAD
 			this.stage.addChild(this.myLabel);
+=======
+			this.meArrow.x = playerAnimation.x;
+			this.meArrow.y = playerAnimation.y - 50;
+
+>>>>>>> 5e2583574facd41f538c988a768b53f12d965963
 		}
 	}
 	this.createBall = function() {
@@ -209,6 +221,8 @@ function Render() {
 			dy = 0;
 		this.players[pid].x = x;
 		this.players[pid].y = y;
+
+
 		var preX = x, preY = y;
 		
 	//	console.log(this.players[pid].currentAnimation);
@@ -276,15 +290,17 @@ function Render() {
 		this.players[pid].x = x - (Sockick.PLAYER_WIDTH / 2);
 		this.players[pid].y = y - Sockick.PLAYER_HEIGHT + heightOffset;
 		// this.players[pid].setTransform(x,y);
-
+		console.log(this.my_id);
 		if (pid == this.my_id) {
 			this.myLabel.x = this.players[pid].x + 50;
 			this.myLabel.y = this.players[pid].x + 10;
+			this.meArrow.x = x - 30;; 
+			this.meArrow.y = this.players[pid].y - 50;
 		}
 	}
 
 	this.deletePlayer = function(pid) {
-		
+		this.stage.removeChild(this.players[pid]);
 	}
 
 	this.updateBall = function(x, y) {

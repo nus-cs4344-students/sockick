@@ -51,7 +51,7 @@ function SockickClient() {
         socket = new SockJS("http://" + Sockick.SERVER_NAME + ":" + Sockick.PORT + "/sockick");
         socket.onmessage = function(e) {
                 var message = JSON.parse(e.data);
-                // console.log(message);
+                console.log(message);
                 switch (message.type) {
                     case "update":
 
@@ -108,8 +108,8 @@ function SockickClient() {
                         // console.log(players);
                         break;
                     case "delete_player":
-                        // renderer.deletePlayer(message.pid);
-                        // delete players[message.pid];
+                         renderer.deletePlayer(message.pid);
+                         delete players[message.pid];
                         break;
                     default:
                         //appendMessage("serverMsg", "unhandled meesage type " + message.type);

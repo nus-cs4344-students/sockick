@@ -51,7 +51,7 @@ function SockickClient() {
         socket = new SockJS("http://" + Sockick.SERVER_NAME + ":" + Sockick.PORT + "/sockick");
         socket.onmessage = function(e) {
                 var message = JSON.parse(e.data);
-                console.log(message);
+                // console.log(message);
                 switch (message.type) {
                     case "update":
 
@@ -108,8 +108,8 @@ function SockickClient() {
                         // console.log(players);
                         break;
                     case "delete_player":
-                         renderer.deletePlayer(message.pid);
-                         delete players[message.pid];
+                        renderer.deletePlayer(message.pid);
+                        delete players[message.pid];
                         break;
                     default:
                         //appendMessage("serverMsg", "unhandled meesage type " + message.type);
@@ -170,31 +170,38 @@ function SockickClient() {
 
     }
 
+    /**
+     * private method sendKeyControll
+     *
+     * Send the curent key combo to server
+     */
     var sendKeyControll = function() {
-        if(pressedKeys.A && pressedKeys.W) {
-            console.log("left up");
+        var new_direction = "stop";
+        // console.log(pressedKeys);
+
+        if (pressedKeys.A && pressedKeys.W) {
+            new_direction = "up_left";
+        } else if (pressedKeys.A && pressedKeys.S) {
+            new_direction = "down_left";
+        } else if (pressedKeys.D && pressedKeys.W) {
+            new_direction = "up_right";
+        } else if (pressedKeys.S && pressedKeys.D) {
+            new_direction = "down_right";
+        } else if (pressedKeys.A) {
+            new_direction = "left";
+        } else if (pressedKeys.W) {
+            new_direction = "up";
+        } else if (pressedKeys.S) {
+            new_direction = "down";
+        } else if (pressedKeys.D) {
+            new_direction = "right";
         }
-        else if (pressedKeys.A && pressedKeys.S) {
-            console.log("left down");
-        }
-        else if (pressedKeys.D && pressedKeys.W) {
-            console.log("right up");
-        }
-        else if (pressedKeys.S && pressedKeys.D) {
-            console.log("right down");
-        }
-        else if (pressedKeys.A) {
-            console.log("left");
-        }
-        else if (pressedKeys.W) {
-            console.log("up");
-        }
-        else if (pressedKeys.S) {
-            console.log("down");
-        }
-        else if (pressedKeys.D) {
-            console.log("right");
-        }
+
+        console.log(new_direction);
+        sendToServer({
+            type: "direction_changed",
+            new_direction: new_direction
+        })
     }
 
     /**

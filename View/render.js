@@ -178,6 +178,7 @@ function Render() {
 			this.myLabel = new createjs.Text("Me", "8px Comic Sans MS", "#000000");
 			this.myLabel.x = playerAnimation.x + 50;
 			this.myLabel.y = playerAnimation.y + 10;
+			this.stage.addChild(this.myLabel);
 		}
 	}
 	this.createBall = function() {

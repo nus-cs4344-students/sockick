@@ -14,6 +14,17 @@ function SockickClient() {
     var players = {};
     var myPid;
 
+    // keyboard listener
+    var listener = new window.keypress.Listener();
+
+    // key pressed
+    var pressedKeys = {
+        A: false,
+        D: false,
+        W: false,
+        S: false
+    };
+
     /*
      * private method: sendToServer(msg)
      *
@@ -48,7 +59,7 @@ function SockickClient() {
                         if (t < lastUpdateAt)
                             break;
                         lastUpdateAt = t;
-                        
+
                         // update ball
                         ball.x = message.ball_position.x;
                         ball.y = message.ball_position.y;
@@ -82,7 +93,7 @@ function SockickClient() {
                                 players[player.pid] = player;
 
                                 renderer.createPlayer(player.pid, false);
-                                console.log("add player :"+player.pid);
+                                console.log("add player :" + player.pid);
                             }
                         }
 
@@ -119,85 +130,85 @@ function SockickClient() {
         while (document.readyState !== "complete") {
             console.log("loading...");
         };
-        document.onkeydown = function(evt) {
-            onKeyPress(evt);
-        }
 
-        document.onkeyup = function(evt) {
-            onTouchEnd(evt);
-        }
-
-
-        //TBD
+        // register key combo
+        var keycombo = [{
+            keys: "w",
+            on_keydown: function() {
+                return update_key("W", true);
+            },
+            on_keyup: function() {
+                return update_key("W", false);
+            }
+        }, {
+            keys: "a",
+            on_keydown: function() {
+                return update_key("A", true);
+            },
+            on_keyup: function() {
+                return update_key("A", false);
+            }
+        }, {
+            keys: "s",
+            on_keydown: function() {
+                return update_key("S", true);
+            },
+            on_keyup: function() {
+                return update_key("S", false);
+            }
+        }, {
+            keys: "d",
+            on_keydown: function() {
+                return update_key("D", true);
+            },
+            on_keyup: function() {
+                return update_key("D", false);
+            }
+        }];
+        listener.register_many(keycombo);
+        setInterval(sendKeyControll, 50);
 
     }
 
-    /*
-     * private method: onTouchEnd
+    var sendKeyControll = function() {
+        if(pressedKeys.A && pressedKeys.W) {
+            console.log("left up");
+        }
+        else if (pressedKeys.A && pressedKeys.S) {
+            console.log("left down");
+        }
+        else if (pressedKeys.D && pressedKeys.W) {
+            console.log("right up");
+        }
+        else if (pressedKeys.S && pressedKeys.D) {
+            console.log("right down");
+        }
+        else if (pressedKeys.A) {
+            console.log("left");
+        }
+        else if (pressedKeys.W) {
+            console.log("up");
+        }
+        else if (pressedKeys.S) {
+            console.log("down");
+        }
+        else if (pressedKeys.D) {
+            console.log("right");
+        }
+    }
+
+    /**
+     * private method: move_piece
      *
-     * Touch version of "mouse click" callback above.
+     *  Update key pressed combo in pressedKeys
      */
-    var onTouchEnd = function(e) {
-        if (e.keyCode >= 37 && e.keyCode <= 40) {
-            sendToServer({
-                type: "direction_changed",
-                new_direction: "stop"
-            });
-        };
-
-    }
-
-
-
-    var onKeyPress = function(e) {
-        /*
-        keyCode represents keyboard button
-        38: up arrow
-        40: down arrow
-        37: left arrow
-        39: right arrow
-        */
-        switch (e.keyCode) {
-            case 37:
-                { // Left
-                    sendToServer({
-                        type: "direction_changed",
-                        new_direction: "left"
-                    });
-                    e.preventDefault();
-                    break;
-                }
-            case 38:
-                { // Up
-                    sendToServer({
-                        type: "direction_changed",
-                        new_direction: "up"
-                    });
-                    e.preventDefault();
-                    break;
-                }
-
-            case 39:
-                { // Right
-                    sendToServer({
-                        type: "direction_changed",
-                        new_direction: "right"
-                    });
-                    e.preventDefault();
-                    break;
-                }
-            case 40:
-                { // Down
-                    sendToServer({
-                        type: "direction_changed",
-                        new_direction: "down"
-                    });
-                    e.preventDefault();
-                    break;
-                }
+    var update_key = function(dir, add) {
+        if (add) {
+            pressedKeys[dir] = true;
+        } else {
+            pressedKeys[dir] = false;
         }
     }
-
 
     /*
      * private method: render

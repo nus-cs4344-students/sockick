@@ -180,7 +180,6 @@ function SockickServer() {
             for (socketID in players) {
                 player = players[socketID]; // socketID === player.sid
                 if (player !== undefined){
-
                     player.gameModel.position = initialise_player_position(player.pid);
                     World.addBody(engine.world, player.gameModel);
                 }
@@ -324,7 +323,7 @@ function SockickServer() {
     }
 
     function player_change_direction(player, newDirection){
-        //console.log(newDirection);
+        console.log(newDirection);
         player.gameModel.frictionAir = 0.00;
         player.gameModel.friction = 0.00;
         switch (newDirection){

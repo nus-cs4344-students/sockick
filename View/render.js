@@ -249,7 +249,7 @@ function Render() {
 				// console.log("right",dx, dy);
 			}
 		}
-/*		if (dx > 0 && dy > 0){
+		if (dx > 0 && dy > 0){
 			if (this.players[pid].currentAnimation != "right_down") {
 				this.players[pid].gotoAndPlay("right_down");
 			}
@@ -259,7 +259,7 @@ function Render() {
 				this.players[pid].gotoAndPlay("right_up");
 			}
 		//	this.players[pid].gotoAndPlay("right_up");
-		}*/
+		}
 		if (dx < 0 && dy == 0){
 			if (this.players[pid].currentAnimation != "left") {
 				this.players[pid].gotoAndPlay("left");
@@ -267,7 +267,7 @@ function Render() {
 			}
 			//this.players[pid].gotoAndPlay("left");
 		}
-/*		if (dx < 0 && dy > 0){
+		if (dx < 0 && dy > 0){
 			if (this.players[pid].currentAnimation != "left_down") {
 				this.players[pid].gotoAndPlay("left_down");
 			}
@@ -278,7 +278,7 @@ function Render() {
 				this.players[pid].gotoAndPlay("left_up");
 			}
 			// this.players[pid].gotoAndPlay("left_up");
-		}*/
+		}
 
 		if (dx != 0 || dy != 0){
 			//console.log("moving");
@@ -298,6 +298,7 @@ function Render() {
 
 	this.deletePlayer = function(pid) {
 		this.stage.removeChild(this.players[pid]);
+		this.stage.update();
 	}
 
 	this.updateBall = function(x, y) {

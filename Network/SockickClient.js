@@ -75,6 +75,7 @@ function SockickClient() {
                                 players[p.pid].y = p.position.y;
                             }
                         }
+                        renderer.setTimeLeft(message.timeleft);
 
                         render();
                         break;

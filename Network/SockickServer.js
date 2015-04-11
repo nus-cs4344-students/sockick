@@ -226,15 +226,27 @@ function SockickServer() {
             
             if (player !== undefined) {
                 if (goal_status == 0) {
-                    var states = { 
-                        type: "update",
-                        timestamp: currentTime,
-                        ball_position: {x: ball.position.x, y: ball.position.y},
-                        timeleft: timeLeft,
-                        player_positions: position_updates
-                    };
-                    //console.log("State: " + player.position.x + " " + player.position.y);
-                    setTimeout(unicast, 0, sockets[player.pid], states);
+                    if (gameTicksLeft == 0) {
+                        var states = { 
+                            type: "end",
+                            timestamp: currentTime,
+                            leftscore: leftScore,
+                            rightscore: rightScore
+                        };
+                        //console.log("State: " + player.position.x + " " + player.position.y);
+                        setTimeout(unicast, 0, sockets[player.pid], states);
+                    } else {
+                        var states = { 
+                            type: "update",
+                            timestamp: currentTime,
+                            ball_position: {x: ball.position.x, y: ball.position.y},
+                            timeleft: timeLeft,
+                            player_positions: position_updates
+                        };
+                        //console.log("State: " + player.position.x + " " + player.position.y);
+                        setTimeout(unicast, 0, sockets[player.pid], states);
+                    }
+                    
                 } else {
                     
                     var states = { 

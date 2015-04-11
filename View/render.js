@@ -140,7 +140,21 @@ function Render() {
 		renderer.scoreBoard.update();
 	}
 
-	this.createPlayer = function(pid, isMyself) {
+	this.addFlag = function(x, y){
+		if(x < this.stage.canvas.width/2){
+			var flag = new createjs.Bitmap("Assets/flag-left.png");
+			flag.x = 28;
+			flag.y = 230;
+		}
+		else{
+			var flag = new createjs.Bitmap("Assets/flag-right.png");
+			flag.x = this.stage.canvas.width - 28;
+			flag.y = 230;
+		}
+		this.stage.addChild(flag);
+	}
+
+	this.createPlayer = function(pid, isMyself, x, y) {
 		var imagePath;
 		if (pid%2 == 0)
 			imagePath = "Assets/player2.png";
@@ -172,6 +186,8 @@ function Render() {
 		var spriteSheet = new createjs.SpriteSheet(data);
 		var playerAnimation = new createjs.Sprite(spriteSheet, "stay_left");
 		playerAnimation.shadow = new createjs.Shadow("#0E140F", 5, 5, 4);
+		playerAnimation.x = x;
+		playerAnimation.y = y;
 		this.players[pid] = playerAnimation;
 		this.stage.addChild(playerAnimation);
 
@@ -181,13 +197,9 @@ function Render() {
 			this.meArrow.scaleX = 0.5;
 			this.meArrow.scaleY = 0.5;
 			this.stage.addChild(this.meArrow);
-			this.myLabel = new createjs.Text("Me", "8px Comic Sans MS", "#000000");
-			this.myLabel.x = playerAnimation.x + 50;
-			this.myLabel.y = playerAnimation.y + 10;
-
 			this.meArrow.x = playerAnimation.x;
 			this.meArrow.y = playerAnimation.y - 50;
-
+			this.addFlag(x, y);
 		}
 	}
 	this.createBall = function() {
@@ -224,10 +236,7 @@ function Render() {
 		
 	//	console.log(this.players[pid].currentAnimation);
 		if (dx == 0 && dy == 0){
-	//	if(Math.abs(x-preX) <1 && Math.abs(y-preY) < 1){
 			this.players[pid].stop();
-		//	this.players[pid].currentAnimation = null;
-			// console.log("stop");
 		}
 		else{
 		if (dx == 0 && dy > 0){
@@ -289,8 +298,6 @@ function Render() {
 		// this.players[pid].setTransform(x,y);
 		// console.log(this.my_id);
 		if (pid == this.my_id) {
-			this.myLabel.x = this.players[pid].x + 50;
-			this.myLabel.y = this.players[pid].x + 10;
 			this.meArrow.x = x - 30;; 
 			this.meArrow.y = this.players[pid].y - 50;
 		}

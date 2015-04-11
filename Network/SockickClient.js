@@ -101,13 +101,13 @@ function SockickClient() {
                                 player.y = others[id].position.y;
                                 players[player.pid] = player;
 
-                                renderer.createPlayer(player.pid, false);
+                                renderer.createPlayer(player.pid, false, others[id].position.x, others[id].position.y);
                                 console.log("add player :" + player.pid);
                             }
                         }
 
                         //add myself
-                        renderer.createPlayer(message.pid, message.is_self);
+                        renderer.createPlayer(message.pid, message.is_self, message.position.x, message.position.y);
                         var player = new Player();
                         player.pid = message.pid;
                         player.x = message.position.x;
@@ -122,6 +122,9 @@ function SockickClient() {
                         break;
                     case "goal":
                         renderer.setScore(message.leftscore, message.rightscore);
+                        break;
+                    case "end":
+                        alert("Game ended! Final Score: " + message.leftscore + ":" + message.rightscore);
                         break;
                     default:
                         //appendMessage("serverMsg", "unhandled meesage type " + message.type);

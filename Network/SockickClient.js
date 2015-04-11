@@ -14,6 +14,17 @@ function SockickClient() {
     var players = {};
     var myPid;
 
+    // keyboard listener
+    var listener = new window.keypress.Listener();
+
+    // key pressed
+    var pressedKeys = {
+        A: false,
+        D: false,
+        W: false,
+        S: false
+    };
+
     /*
      * private method: sendToServer(msg)
      *
@@ -40,7 +51,7 @@ function SockickClient() {
         socket = new SockJS("http://" + Sockick.SERVER_NAME + ":" + Sockick.PORT + "/sockick");
         socket.onmessage = function(e) {
                 var message = JSON.parse(e.data);
-                console.log(message);
+                // console.log(message);
                 switch (message.type) {
                     case "update":
 
@@ -48,7 +59,7 @@ function SockickClient() {
                         if (t < lastUpdateAt)
                             break;
                         lastUpdateAt = t;
-                        
+
                         // update ball
                         ball.x = message.ball_position.x;
                         ball.y = message.ball_position.y;
@@ -82,7 +93,7 @@ function SockickClient() {
                                 players[player.pid] = player;
 
                                 renderer.createPlayer(player.pid, false);
-                                console.log("add player :"+player.pid);
+                                console.log("add player :" + player.pid);
                             }
                         }
 
@@ -97,8 +108,8 @@ function SockickClient() {
                         // console.log(players);
                         break;
                     case "delete_player":
-                         renderer.deletePlayer(message.pid);
-                         delete players[message.pid];
+                        renderer.deletePlayer(message.pid);
+                        delete players[message.pid];
                         break;
                     default:
                         //appendMessage("serverMsg", "unhandled meesage type " + message.type);
@@ -119,85 +130,92 @@ function SockickClient() {
         while (document.readyState !== "complete") {
             console.log("loading...");
         };
-        document.onkeydown = function(evt) {
-            onKeyPress(evt);
-        }
 
-        document.onkeyup = function(evt) {
-            onTouchEnd(evt);
-        }
-
-
-        //TBD
+        // register key combo
+        var keycombo = [{
+            keys: "w",
+            on_keydown: function() {
+                return update_key("W", true);
+            },
+            on_keyup: function() {
+                return update_key("W", false);
+            }
+        }, {
+            keys: "a",
+            on_keydown: function() {
+                return update_key("A", true);
+            },
+            on_keyup: function() {
+                return update_key("A", false);
+            }
+        }, {
+            keys: "s",
+            on_keydown: function() {
+                return update_key("S", true);
+            },
+            on_keyup: function() {
+                return update_key("S", false);
+            }
+        }, {
+            keys: "d",
+            on_keydown: function() {
+                return update_key("D", true);
+            },
+            on_keyup: function() {
+                return update_key("D", false);
+            }
+        }];
+        listener.register_many(keycombo);
+        setInterval(sendKeyControll, 50);
 
     }
 
-    /*
-     * private method: onTouchEnd
+    /**
+     * private method sendKeyControll
      *
-     * Touch version of "mouse click" callback above.
+     * Send the curent key combo to server
      */
-    var onTouchEnd = function(e) {
-        if (e.keyCode >= 37 && e.keyCode <= 40) {
-            sendToServer({
-                type: "direction_changed",
-                new_direction: "stop"
-            });
-        };
+    var sendKeyControll = function() {
+        var new_direction = "stop";
+        // console.log(pressedKeys);
 
+        if (pressedKeys.A && pressedKeys.W) {
+            new_direction = "up_left";
+        } else if (pressedKeys.A && pressedKeys.S) {
+            new_direction = "down_left";
+        } else if (pressedKeys.D && pressedKeys.W) {
+            new_direction = "up_right";
+        } else if (pressedKeys.S && pressedKeys.D) {
+            new_direction = "down_right";
+        } else if (pressedKeys.A) {
+            new_direction = "left";
+        } else if (pressedKeys.W) {
+            new_direction = "up";
+        } else if (pressedKeys.S) {
+            new_direction = "down";
+        } else if (pressedKeys.D) {
+            new_direction = "right";
+        }
+
+        // console.log(new_direction);
+        sendToServer({
+            type: "direction_changed",
+            new_direction: new_direction
+        })
     }
 
-
-
-    var onKeyPress = function(e) {
-        /*
-        keyCode represents keyboard button
-        38: up arrow
-        40: down arrow
-        37: left arrow
-        39: right arrow
-        */
-        switch (e.keyCode) {
-            case 37:
-                { // Left
-                    sendToServer({
-                        type: "direction_changed",
-                        new_direction: "left"
-                    });
-                    e.preventDefault();
-                    break;
-                }
-            case 38:
-                { // Up
-                    sendToServer({
-                        type: "direction_changed",
-                        new_direction: "up"
-                    });
-                    e.preventDefault();
-                    break;
-                }
-
-            case 39:
-                { // Right
-                    sendToServer({
-                        type: "direction_changed",
-                        new_direction: "right"
-                    });
-                    e.preventDefault();
-                    break;
-                }
-            case 40:
-                { // Down
-                    sendToServer({
-                        type: "direction_changed",
-                        new_direction: "down"
-                    });
-                    e.preventDefault();
-                    break;
-                }
+    /**
+     * private method: move_piece
+     *
+     *  Update key pressed combo in pressedKeys
+     */
+    var update_key = function(dir, add) {
+        if (add) {
+            pressedKeys[dir] = true;
+        } else {
+            pressedKeys[dir] = false;
         }
     }
-
 
     /*
      * private method: render

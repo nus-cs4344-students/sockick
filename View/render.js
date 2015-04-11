@@ -184,6 +184,7 @@ function Render() {
 			this.myLabel = new createjs.Text("Me", "8px Comic Sans MS", "#000000");
 			this.myLabel.x = playerAnimation.x + 50;
 			this.myLabel.y = playerAnimation.y + 10;
+
 			this.meArrow.x = playerAnimation.x;
 			this.meArrow.y = playerAnimation.y - 50;
 
@@ -286,7 +287,7 @@ function Render() {
 		this.players[pid].x = x - (Sockick.PLAYER_WIDTH / 2);
 		this.players[pid].y = y - Sockick.PLAYER_HEIGHT + heightOffset;
 		// this.players[pid].setTransform(x,y);
-		console.log(this.my_id);
+		// console.log(this.my_id);
 		if (pid == this.my_id) {
 			this.myLabel.x = this.players[pid].x + 50;
 			this.myLabel.y = this.players[pid].x + 10;

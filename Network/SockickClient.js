@@ -52,7 +52,7 @@ function SockickClient() {
         socket = new SockJS("http://" + Sockick.SERVER_NAME + ":" + Sockick.PORT + "/sockick");
         socket.onmessage = function(e) {
                 var message = JSON.parse(e.data);
-                // console.log(message);
+                //console.log(message);
                 switch (message.type) {
                     case "update":
 
@@ -96,7 +96,7 @@ function SockickClient() {
                             for (id in others) {
 
                                 var player = new Player();
-                                player.pid = others[id].id;
+                                player.pid = others[id].pid;
                                 player.x = others[id].position.x;
                                 player.y = others[id].position.y;
                                 players[player.pid] = player;
@@ -219,7 +219,6 @@ function SockickClient() {
                 new_direction: action
             });
             preAction = action;
-            console.log("send");
         }
 
     }

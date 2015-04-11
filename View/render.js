@@ -148,7 +148,7 @@ function Render() {
 		}
 		else{
 			var flag = new createjs.Bitmap("Assets/flag-right.png");
-			flag.x = this.stage.canvas.width - 28;
+			flag.x = this.stage.canvas.width - 28 - 53;
 			flag.y = 230;
 		}
 		this.stage.addChild(flag);
@@ -201,7 +201,7 @@ function Render() {
 			this.meArrow.scaleX = 0.5;
 			this.meArrow.scaleY = 0.5;
 			this.stage.addChild(this.meArrow);
-			this.meArrow.x = playerAnimation.x;
+			this.meArrow.x = playerAnimation.x - 30;
 			this.meArrow.y = playerAnimation.y - 50;
 			this.addFlag(x, y);
 		}

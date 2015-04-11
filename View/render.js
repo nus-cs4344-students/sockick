@@ -184,7 +184,11 @@ function Render() {
 			}
 		};
 		var spriteSheet = new createjs.SpriteSheet(data);
-		var playerAnimation = new createjs.Sprite(spriteSheet, "stay_left");
+		if(x < this.stage.canvas.width/2){
+			var playerAnimation = new createjs.Sprite(spriteSheet, "stay_right");			
+		}
+		else
+			var playerAnimation = new createjs.Sprite(spriteSheet, "stay_left");
 		playerAnimation.shadow = new createjs.Shadow("#0E140F", 5, 5, 4);
 		playerAnimation.x = x;
 		playerAnimation.y = y;

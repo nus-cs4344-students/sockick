@@ -113,8 +113,8 @@ function SockickServer() {
         // @param: x, y, radius, options, maxSides
         var gameModel = Bodies.circle(startPos.x, startPos.y, Sockick.PLAYER_RADIUS, null, 25);
         gameModel.density = 0.01;
-        gameModel.frictionAir = 0.05;
-        gameModel.friction = 0.1;
+        gameModel.frictionAir = Sockick.PLAYER_FRICTION_AIR;
+        gameModel.friction = Sockick.PLAYER_FRICTION;
         gameModel.restitution = 0.0;
 
         var newPlayer = new Player(conn.id, nextPID);
@@ -269,7 +269,7 @@ function SockickServer() {
 
         var width = Sockick.WIDTH;
         var height = Sockick.HEIGHT;
-        var wall_thickness = 500;
+        var wall_thickness = 1000;
         var options =  { isStatic: true,};
 
         var wall_top = Bodies.rectangle(
@@ -325,7 +325,9 @@ function SockickServer() {
     }
 
     function player_change_direction(player, newDirection){
-        //console.log(newDirection);
+        console.log(newDirection);
+        player.gameModel.frictionAir = 0.00;
+        player.gameModel.friction = 0.00;
         switch (newDirection){
             case "left":{
                 model_move_left(player.gameModel);
@@ -344,6 +346,8 @@ function SockickServer() {
                 break;
             }
             case "stop":{
+                player.gameModel.friction = Sockick.PLAYER_FRICTION;
+                player.gameModel.frictionAir = Sockick.PLAYER_FRICTION_AIR;
                 model_stop(player.gameModel);
                 break;
             }
@@ -465,6 +469,9 @@ function SockickServer() {
 
                     console.log("Player did quit. New nextPID: " + nextPID);
 
+                    // Update players:
+                    broadcast({type: "delete_player", id: players[conn.id].pid});
+
                     // Remove player who wants to quit/closed the window
                     if (players[conn.id] === p1) p1 = undefined;
                     if (players[conn.id] === p2) p2 = undefined;
@@ -475,9 +482,6 @@ function SockickServer() {
 
                     // Stop game if it's playing
                     reset();
-
-                    // Update players:
-                    broadcast({type: "delete_player", id: players[conn.id].pid});
 
                     // Sends to everyone connected to server except the client
                     broadcast({type:"message", content: " There is now " + count + " players."});

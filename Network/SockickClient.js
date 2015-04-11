@@ -40,7 +40,7 @@ function SockickClient() {
         socket = new SockJS("http://" + Sockick.SERVER_NAME + ":" + Sockick.PORT + "/sockick");
         socket.onmessage = function(e) {
                 var message = JSON.parse(e.data);
-                // console.log(message);
+                console.log(message);
                 switch (message.type) {
                     case "update":
 

@@ -61,7 +61,7 @@ function SockickServer() {
      * connection of a player is closed.
      */
     var reset = function () {
-        if (count % 2 === 0 && count > 0) {
+        if (count > 1) {
             // Game is fine
         }
         else if (gameInterval !== undefined) {
@@ -244,11 +244,7 @@ function SockickServer() {
 
         if (gameInterval !== undefined) {
             console.log("Game already playing!");
-        } else{
-            console.log("Game is started again.");
-        }
-
-        if (count % 2 !== 0) { // Used to be: Object.keys(players).length, breaks abstraction.
+        } else if (count === 1) { // Used to be: Object.keys(players).length, breaks abstraction.
             // We need even number of players to play.
             console.log("Not enough players!");
             broadcast({type:"message", content:"Not enough player"});
@@ -256,7 +252,7 @@ function SockickServer() {
             // Everything is a OK
             console.log("Starting game...");
             gameInterval = setInterval(function() {gameLoop();}, 1000/Sockick.FRAME_RATE);
-        }   
+        }
 
         console.log("In startGame(), player count: " + count);     
     }
@@ -325,7 +321,7 @@ function SockickServer() {
     }
 
     function player_change_direction(player, newDirection){
-        console.log(newDirection);
+        //console.log(newDirection);
         player.gameModel.frictionAir = 0.00;
         player.gameModel.friction = 0.00;
         switch (newDirection){
@@ -491,7 +487,10 @@ function SockickServer() {
                     console.log("Player did quit. New nextPID: " + nextPID);
 
                     // Update players:
-                    broadcast({type: "delete_player", id: players[conn.id].pid});
+                    broadcast({type: "delete_player", pid: players[conn.id].pid});
+
+                    // Remove gameModel from engine:
+                    Matter.Composite.removeBody(engine.world, players[conn.id].gameModel);
 
                     // Remove player who wants to quit/closed the window
                     if (players[conn.id] === p1) p1 = undefined;

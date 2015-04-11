@@ -118,6 +118,9 @@ function SockickClient() {
                     case "goal":
                         renderer.setScore(message.leftscore, message.rightscore);
                         break;
+                    case "end":
+                        alert("Game ended! Final Score: " + message.leftscore + ":" + message.rightscore);
+                        break;
                     default:
                         //appendMessage("serverMsg", "unhandled meesage type " + message.type);
                 }

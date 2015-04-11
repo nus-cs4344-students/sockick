@@ -5,11 +5,11 @@ var Sockick = {
 	HEIGHT : 594,
 	WIDTH : 916,
 	GATE_WIDTH: 180,
-	GAME_DURATION: 300,
+	GAME_DURATION: 20,
 	PORT : 4344,
 	FRAME_RATE : 60,			// frame rate of Sockick game
-	//SERVER_NAME : "localhost",	// server name of Sockick game
-	SERVER_NAME : "192.168.1.126",	// server name of Sockick game
+	SERVER_NAME : "localhost",	// server name of Sockick game
+	// SERVER_NAME : "192.168.1.126",	// server name of Sockick game
 
 	// Constants:
 	PLAYER_RADIUS : 64,

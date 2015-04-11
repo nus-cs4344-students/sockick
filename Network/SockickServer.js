@@ -182,7 +182,7 @@ function SockickServer() {
                 if (player !== undefined){
 
                     player.gameModel.position = initialise_player_position(player.pid);
-                    World.addBody(engine.world, player.gameModel);
+                    //World.addBody(engine.world, player.gameModel);
                 }
             }
         }
@@ -558,11 +558,6 @@ function SockickServer() {
                     } 
 
                     switch (message.type) {
-                        // one of the player starts the game.
-                        case "start": 
-                            console.log("server start");
-                            startGame();
-                            break;
                         case "direction_changed":
                             player_change_direction(players[conn.id], message.new_direction);
                             break;

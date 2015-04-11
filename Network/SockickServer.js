@@ -86,8 +86,6 @@ function SockickServer() {
         var initialPosition = (nextPID % 2 === 1) ? "left" : "right";
         var startPos = initialise_player_position(nextPID);
 
-        
-
         // Send message to new player (the current client)
         unicast(conn, {type: "message", content:"You are Player " + nextPID + ". Your position is at the " + initialPosition});
 
@@ -178,7 +176,17 @@ function SockickServer() {
         var goal_status = check_goal();
         if (goal_status != 0) {
             console.log("Goal status is " + goal_status);
+            Matter.Composite.clear(engine.world, false, true);
             initializeGameEngine();
+            // Add players:
+            for (socketID in players) {
+                player = players[socketID]; // socketID === player.sid
+                if (player !== undefined){
+
+                    player.gameModel.position = initialise_player_position(player.pid);
+                    World.addBody(engine.world, player.gameModel);
+                }
+            }
         }
 
         // Consturct the message:
@@ -196,8 +204,7 @@ function SockickServer() {
             }
         }
 
-        var goal_status = check_goal();
-
+        //var goal_status = check_goal();
 
         for (socketID in players) {
             player = players[socketID]; // socketID === player.sid
@@ -559,11 +566,6 @@ function SockickServer() {
                     } 
 
                     switch (message.type) {
-                        // one of the player starts the game.
-                        case "start": 
-                            console.log("server start");
-                            startGame();
-                            break;
                         case "direction_changed":
                             player_change_direction(players[conn.id], message.new_direction);
                             break;

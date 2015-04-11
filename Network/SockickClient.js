@@ -75,10 +75,15 @@ function SockickClient() {
                                 players[p.pid].x = p.position.x;
                                 players[p.pid].y = p.position.y;
                             }
+
+                            if (p.pid === myPid) {
+                                //console.log("my position: " + p.position.x + ", " + p.position.y);
+                            }
                         }
                         renderer.setTimeLeft(message.timeleft);
 
                         render();
+
                         break;
                     case "add_player":
 

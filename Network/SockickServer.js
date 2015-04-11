@@ -64,10 +64,7 @@ function SockickServer() {
      * connection of a player is closed.
      */
     var reset = function () {
-        if (count > 1) {
-            // Game is fine
-        }
-        else if (gameInterval !== undefined) {
+        if (gameInterval !== undefined) {
             clearInterval(gameInterval);
             gameInterval = undefined;
         }
@@ -90,17 +87,9 @@ function SockickServer() {
         // Send message to new player (the current client)
         unicast(conn, {type: "message", content:"You are Player " + nextPID + ". Your position is at the " + initialPosition});
 
-        // Create player object and insert into players with key = conn.id
-        // @param: x, y, radius, options, maxSides
-        var gameModel = Bodies.circle(startPos.x, startPos.y, Sockick.PLAYER_RADIUS, null, 25);
-        gameModel.density = 0.01;
-        gameModel.frictionAir = Sockick.PLAYER_FRICTION_AIR;
-        gameModel.friction = Sockick.PLAYER_FRICTION;
-        gameModel.restitution = 0.0;
-
         var newPlayer = new Player(conn.id, nextPID);
+        var gameModel = createGameModelForNewPlayer(startPos);
         newPlayer.gameModel = gameModel;
-
         World.addBody(engine.world, gameModel);
 
         players[conn.id] = newPlayer; // conn.id is a complex string
@@ -159,6 +148,18 @@ function SockickServer() {
         }
     }
 
+    var createGameModelForNewPlayer = function (startPos){
+        // Create player object and insert into players with key = conn.id
+        // @param: x, y, radius, options, maxSides
+        var gameModel = Bodies.circle(startPos.x, startPos.y, Sockick.PLAYER_RADIUS, null, 25);
+        gameModel.density = 0.01;
+        gameModel.frictionAir = Sockick.PLAYER_FRICTION_AIR;
+        gameModel.friction = Sockick.PLAYER_FRICTION;
+        gameModel.restitution = 0.0;
+
+        return gameModel;
+    }
+
     var computeTimeLeft = function() {
         var minLeft = Math.floor(Math.floor(gameTicksLeft / Sockick.FRAME_RATE) / 60);
         var secLeft = Math.floor(gameTicksLeft / Sockick.FRAME_RATE) % 60;
@@ -183,6 +184,7 @@ function SockickServer() {
         var player;
         var goal_status = check_goal();
         if (goal_status != 0) {
+            reset();
             console.log("Goal status is " + goal_status);
             Matter.Composite.clear(engine.world, false, true);
             initializeGameEngine();
@@ -190,10 +192,14 @@ function SockickServer() {
             for (socketID in players) {
                 player = players[socketID]; // socketID === player.sid
                 if (player !== undefined){
-                    player.gameModel.position = initialise_player_position(player.pid);
-                    World.addBody(engine.world, player.gameModel);
+                    var startPos = initialise_player_position(player.pid);
+                    var gameModel = createGameModelForNewPlayer(startPos);
+                    player.gameModel = gameModel;
+                    World.addBody(engine.world, gameModel);
+                    console.log("New position: " + player.gameModel.position.x + ", " + player.gameModel.position.y);
                 }
             }
+            startGame();
         }
 
         // Consturct the message:
@@ -553,8 +559,10 @@ function SockickServer() {
 
                     delete players[conn.id];
 
-                    // Stop game if it's playing
-                    reset();
+                    // Stop game if too little players are playing
+                    if (count < 1) {
+                        reset();
+                    }
 
                     // Sends to everyone connected to server except the client
                     broadcast({type:"message", content: " There is now " + count + " players."});

@@ -345,6 +345,27 @@ function SockickServer() {
                 model_move_down(player.gameModel);
                 break;
             }
+            case "up_right":{
+                model_move_up(player.gameModel);
+                model_move_right(player.gameModel);
+                break;
+            }
+            case "up_left":{
+                model_move_up(player.gameModel);
+                model_move_left(player.gameModel);
+                break;
+            }
+            case "down_right":{
+                model_move_down(player.gameModel);
+                model_move_right(player.gameModel);
+
+                break;
+            }
+            case "down_left":{
+                model_move_down(player.gameModel);
+                model_move_left(player.gameModel);
+                break;
+            }
             case "stop":{
                 player.gameModel.friction = Sockick.PLAYER_FRICTION;
                 player.gameModel.frictionAir = Sockick.PLAYER_FRICTION_AIR;

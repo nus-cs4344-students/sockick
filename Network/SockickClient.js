@@ -197,7 +197,7 @@ function SockickClient() {
             new_direction = "right";
         }
 
-        console.log(new_direction);
+        // console.log(new_direction);
         sendToServer({
             type: "direction_changed",
             new_direction: new_direction

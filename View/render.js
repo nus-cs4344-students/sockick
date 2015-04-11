@@ -141,7 +141,7 @@ function Render() {
 	}
 
 	this.addFlag = function(x, y){
-		if(x < this.stage.canvas.width/2){
+		if(x > this.stage.canvas.width/2){
 			var flag = new createjs.Bitmap("Assets/flag-left.png");
 			flag.x = 28;
 			flag.y = 230;

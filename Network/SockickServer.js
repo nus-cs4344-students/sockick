@@ -536,7 +536,8 @@ function SockickServer() {
                 if (count == 4) {
                     // Send back message that game is full
                     unicast(conn, {type:"message", content:"The game is full.  Come back later"});
-                    // TODO: force a disconnect
+                    // Force a disconnect
+                    conn.close();
                 } else{
                     // create a new player. Count is added there.
                     newPlayer(conn);

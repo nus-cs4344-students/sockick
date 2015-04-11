@@ -8,8 +8,8 @@ var Sockick = {
 	GAME_DURATION: 300,
 	PORT : 4344,
 	FRAME_RATE : 60,			// frame rate of Sockick game
-	SERVER_NAME : "localhost",	// server name of Sockick game
-	//SERVER_NAME : "172.28.179.28",	// server name of Sockick game
+	//SERVER_NAME : "localhost",	// server name of Sockick game
+	SERVER_NAME : "192.168.1.126",	// server name of Sockick game
 
 	// Constants:
 	PLAYER_RADIUS : 64,

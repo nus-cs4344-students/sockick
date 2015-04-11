@@ -156,7 +156,7 @@ function Render() {
 
 	this.createPlayer = function(pid, isMyself, x, y) {
 		var imagePath;
-		if (pid%2 == 0)
+		if (x < this.stage.canvas.width/2)
 			imagePath = "Assets/player2.png";
 		else
 			imagePath = "Assets/player1.png"

@@ -70,8 +70,10 @@ function SockickClient() {
                         for (id in positions) {
 
                             var p = positions[id];
-                            players[p.pid].x = p.position.x;
-                            players[p.pid].y = p.position.y;
+                            if(players[p.pid] !== undefined){
+                                players[p.pid].x = p.position.x;
+                                players[p.pid].y = p.position.y;
+                            }
                         }
 
                         render();

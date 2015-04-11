@@ -52,7 +52,6 @@ function SockickClient() {
         socket = new SockJS("http://" + Sockick.SERVER_NAME + ":" + Sockick.PORT + "/sockick");
         socket.onmessage = function(e) {
                 var message = JSON.parse(e.data);
-                // console.log(message);
                 switch (message.type) {
                     case "update":
 
@@ -219,7 +218,6 @@ function SockickClient() {
                 new_direction: action
             });
             preAction = action;
-            console.log("send");
         }
 
     }

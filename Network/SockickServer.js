@@ -174,7 +174,7 @@ function SockickServer() {
         var goal_status = check_goal();
         if (goal_status != 0) {
             console.log("Goal status is " + goal_status);
-            Matter.Composite.clear(engine.world, false);
+            Matter.Composite.clear(engine.world, false, true);
             initializeGameEngine();
             // Add players:
             for (socketID in players) {
@@ -182,7 +182,7 @@ function SockickServer() {
                 if (player !== undefined){
 
                     player.gameModel.position = initialise_player_position(player.pid);
-                    //World.addBody(engine.world, player.gameModel);
+                    World.addBody(engine.world, player.gameModel);
                 }
             }
         }

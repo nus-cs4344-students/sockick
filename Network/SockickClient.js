@@ -16,6 +16,7 @@ function SockickClient() {
 
     // keyboard listener
     var listener = new window.keypress.Listener();
+    var preAction = "";
 
     // key pressed
     var pressedKeys = {
@@ -70,7 +71,7 @@ function SockickClient() {
                         for (id in positions) {
 
                             var p = positions[id];
-                            if(players[p.pid] !== undefined){
+                            if (players[p.pid] !== undefined) {
                                 players[p.pid].x = p.position.x;
                                 players[p.pid].y = p.position.y;
                             }
@@ -116,6 +117,9 @@ function SockickClient() {
                         break;
                     case "goal":
                         renderer.setScore(message.leftscore, message.rightscore);
+                        break;
+                    case "end":
+                        alert("Game ended! Final Score: " + message.leftscore + ":" + message.rightscore);
                         break;
                     default:
                         //appendMessage("serverMsg", "unhandled meesage type " + message.type);
@@ -182,32 +186,37 @@ function SockickClient() {
      * Send the curent key combo to server
      */
     var sendKeyControll = function() {
-        var new_direction = "stop";
+        var action = "stop";
         // console.log(pressedKeys);
 
         if (pressedKeys.A && pressedKeys.W) {
-            new_direction = "up_left";
+            action = "up_left";
         } else if (pressedKeys.A && pressedKeys.S) {
-            new_direction = "down_left";
+            action = "down_left";
         } else if (pressedKeys.D && pressedKeys.W) {
-            new_direction = "up_right";
+            action = "up_right";
         } else if (pressedKeys.S && pressedKeys.D) {
-            new_direction = "down_right";
+            action = "down_right";
         } else if (pressedKeys.A) {
-            new_direction = "left";
+            action = "left";
         } else if (pressedKeys.W) {
-            new_direction = "up";
+            action = "up";
         } else if (pressedKeys.S) {
-            new_direction = "down";
+            action = "down";
         } else if (pressedKeys.D) {
-            new_direction = "right";
+            action = "right";
         }
 
-        // console.log(new_direction);
-        sendToServer({
-            type: "direction_changed",
-            new_direction: new_direction
-        })
+        // console.log(action);
+        if (action !== preAction) {
+            sendToServer({
+                type: "direction_changed",
+                new_direction: action
+            });
+            preAction = action;
+            console.log("send");
+        }
+
     }
 
     /**

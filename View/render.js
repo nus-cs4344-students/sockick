@@ -119,7 +119,15 @@ function Render() {
 		createjs.Ticker.addEventListener("tick", this.handleTick);
 
 	}
+
+	this.addGoalSound = function(){
+		var audio = document.getElementById('audio');
+		audio.play();
+	}
+
+
 	this.setScore = function(scoreLeft, scoreRight) {
+		this.addGoalSound();
 		this.text_score.text = scoreLeft + ' : ' + scoreRight;
 		var width = this.text_score.getMeasuredWidth();
 		this.text_score.x = 500 - width / 2;
@@ -200,9 +208,9 @@ function Render() {
 			this.meArrow = new createjs.Bitmap("Assets/arrow.png");
 			this.meArrow.scaleX = 0.5;
 			this.meArrow.scaleY = 0.5;
-			this.stage.addChild(this.meArrow);
-			this.meArrow.x = playerAnimation.x - 30;
+			this.meArrow.x = playerAnimation.x + (Sockick.PLAYER_WIDTH / 2) - 30;
 			this.meArrow.y = playerAnimation.y - 50;
+			this.stage.addChild(this.meArrow);
 			this.addFlag(x, y);
 		}
 	}

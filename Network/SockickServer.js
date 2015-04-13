@@ -235,6 +235,7 @@ function SockickServer() {
                         };
                         //console.log("State: " + player.position.x + " " + player.position.y);
                         setTimeout(unicast, 0, sockets[player.pid], states);
+                        reset();
                     } else {
                         var states = { 
                             type: "update",

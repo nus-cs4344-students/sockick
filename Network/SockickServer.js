@@ -67,9 +67,15 @@ function SockickServer() {
         if (gameInterval !== undefined) {
             clearInterval(gameInterval);
             gameInterval = undefined;
+            
         }
     }
-
+    var reStart = function() {
+        reset();
+        var leftScore = 0;
+        var rightScore = 0;
+        var gameTicksLeft = Sockick.GAME_DURATION * Sockick.FRAME_RATE;
+    }
 
     /*
      * private method: newPlayer()
@@ -235,7 +241,7 @@ function SockickServer() {
                         };
                         //console.log("State: " + player.position.x + " " + player.position.y);
                         setTimeout(unicast, 0, sockets[player.pid], states);
-                        reset();
+                        reStart();
                     } else {
                         var states = { 
                             type: "update",

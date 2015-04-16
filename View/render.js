@@ -9,6 +9,7 @@ function Render() {
 	this.my_id;
 	this.myLabel;
 	this.ballAnimation;
+	this.rune;
 
 	this.init = function() {
 
@@ -160,6 +161,18 @@ function Render() {
 			flag.y = 230;
 		}
 		this.stage.addChild(flag);
+	}
+
+	this.addRune = function(runeType, x, y) {
+		this.rune = new createjs.Bitmap("Assets/flag-left.png");
+		this.rune.x = x;
+		this.rune.y = y;
+		this.stage.addChild(this.rune);
+		console.log("Rune rendered");
+	}
+
+	this.removeRune = function() {
+		this.stage.removeChild(this.rune);
 	}
 
 	this.createPlayer = function(pid, isMyself, x, y) {

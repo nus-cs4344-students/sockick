@@ -126,6 +126,17 @@ function SockickClient() {
                     case "end":
                         alert("Game ended! Final Score: " + message.leftscore + ":" + message.rightscore);
                         break;
+                    case "rune_create":
+                        renderer.removeRune();
+                        renderer.addRune(message.runetype, message.x, message.y);
+                        console.log("RuneType is " + message.runetype);
+                        console.log("X is " + message.x);
+                        console.log("Y is " + message.y);
+                        break;
+                    case "rune_hit":
+                        console.log("Rune hit by " + message.playerid);
+
+                        renderer.removeRune();
                     default:
                         //appendMessage("serverMsg", "unhandled meesage type " + message.type);
                 }

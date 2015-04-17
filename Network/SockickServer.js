@@ -141,13 +141,13 @@ function SockickServer() {
 
         for (var i = 0; i < others.length; i++) {
             var new_other_player = others[i];
-            setTimeout(unicast, 0, sockets[new_other_player.pid], states);
+            setTimeout(unicast, new_other_player.delay, sockets[new_other_player.pid], states);
             console.log("New user added. Sending " + states.is_self + " to pid: " + new_other_player.pid);
         }
 
         states = JSON.parse(statesJSON);
         states.is_self = true;
-        setTimeout(unicast, 0, sockets[newPlayer.pid], states);
+        setTimeout(unicast, newPlayer.delay, sockets[newPlayer.pid], states);
         console.log("New user added. Sending " + states.is_self + " to pid: " + newPlayer.pid);
 
         // Mark as player 1 to 4
@@ -156,6 +156,7 @@ function SockickServer() {
             nextPID = 2;
         } else if (nextPID == 2) {
             p2 = players[conn.id];
+            p2.delay = Sockick.PLAYER_DELAY;
             nextPID = 3;
         } else if (nextPID == 3){
             p3 = players[conn.id];
@@ -272,8 +273,7 @@ function SockickServer() {
             var r = Math.floor((Math.random() * Sockick.AVERAGE_RUNE_GENERATION_TIME * Sockick.FRAME_RATE) + 1);
             if (r == 1) {
                 hasRune = true;
-                // runeType = Math.floor(Math.random() * 3);
-                runeType = 3;
+                runeType = Math.floor(Math.random() * 4);
                 runePositionX = Math.floor(Math.random() * Sockick.WIDTH);
                 runePositionY = Math.floor(Math.random() * Sockick.HEIGHT);
             }
@@ -297,7 +297,7 @@ function SockickServer() {
                             rightscore: rightScore
                         };
                         //console.log("State: " + player.position.x + " " + player.position.y);
-                        setTimeout(unicast, 0, sockets[player.pid], states);
+                        setTimeout(unicast, player.delay, sockets[player.pid], states);
                         reStart();
                     } else {
                         if (r == 1) {
@@ -308,7 +308,7 @@ function SockickServer() {
                                 x: runePositionX,
                                 y: runePositionY
                             };
-                            setTimeout(unicast, 0, sockets[player.pid], runeMessage);
+                            setTimeout(unicast, player.delay, sockets[player.pid], runeMessage);
                         }
                         if (hit) {
                             var runeHitMessage = {
@@ -317,7 +317,7 @@ function SockickServer() {
                                 runetype: runeType,
                                 playerid: hitPlayer.pid
                             };
-                            setTimeout(unicast, 0, sockets[player.pid], runeHitMessage);
+                            setTimeout(unicast, player.delay, sockets[player.pid], runeHitMessage);
                         }
                         var states = { 
                             type: "update_players",
@@ -327,7 +327,7 @@ function SockickServer() {
                         };
 
                         //console.log("State: " + player.position.x + " " + player.position.y);
-                        setTimeout(unicast, 0, sockets[player.pid], states);                        
+                        setTimeout(unicast, player.delay, sockets[player.pid], states);                        
                     }
                     
                 } else {
@@ -337,7 +337,7 @@ function SockickServer() {
                         leftscore: leftScore,
                         rightscore: rightScore
                     };
-                    setTimeout(unicast, 0, sockets[player.pid], states);
+                    setTimeout(unicast, player.delay, sockets[player.pid], states);
                 }
             } else{
                 console.log("player is undefined now with ID: " + socketID);
@@ -353,7 +353,12 @@ function SockickServer() {
                 ball_position: {x: ball.position.x, y: ball.position.y},
                 ball_velocity: {x: ball.velocity.x, y: ball.velocity.y},
             }
-            broadcast(ballPosition);
+            // broadcast(ballPosition);
+            var id;
+            for (id in players) {
+                player = players[id];
+                setTimeout(unicast, player.delay, sockets[player.pid] ,ballPosition);
+            }
         }
         lastBallSpeed = ball.speed;
 

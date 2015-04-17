@@ -33,7 +33,9 @@ var Sockick = {
 	RUNE_TYPE_HEAVY: 1,
 	RUNE_TYPE_REVERSE: 2,
 	RUNE_TYPE_FROZEN: 3,
-	RUNE_DIMENSION: 50
+	RUNE_DIMENSION: 50,
+
+	DELTA_T: 10,
 }
 
 // For node.js require

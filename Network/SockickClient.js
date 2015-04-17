@@ -16,7 +16,10 @@ function SockickClient() {
     var ball; // ball object in game 
     var gameInterval;
     var lastUpdateAt = 0; // timestamp of last recv update
-
+    var catchUpVelocity = {
+        vx: 0,
+        vy: 0
+    };
 
     // player list
     var players = {};
@@ -92,10 +95,27 @@ function SockickClient() {
 
                         break;
                     case "update_ball":
-                        ball.x = message.ball_position.x;
-                        ball.y = message.ball_position.y;
-                        ball.vx = message.ball_velocity.x;
-                        ball.vy = message.ball_velocity.y;
+                        // ball.x = message.ball_position.x;
+                        // ball.y = message.ball_position.y;
+                        // ball.vx = message.ball_velocity.x;
+                        // ball.vy = message.ball_velocity.y;
+
+                        // start to catch up
+                        ball.ghostWalkLoopsLeft = Sockick.DELTA_T - 1;
+                        var date = new Date();
+                        var currentTime = date.getTime();
+                        var delay = (currentTime - message.timestamp) / (1000 / Sockick.FRAME_RATE);
+                        var finalX = message.ball_position.x + message.ball_velocity.x * (delay + Sockick.DELTA_T);
+                        var finalY = message.ball_position.y + message.ball_velocity.y * (delay + Sockick.DELTA_T);
+                        console.log(finalX,finalY);
+                        catchUpVelocity = {
+                            vx: message.ball_velocity.x,
+                            vy: message.ball_velocity.y
+                        };
+
+                        ball.vx = (finalX - ball.x) / Sockick.DELTA_T;
+                        ball.vy = (finalY - ball.y) / Sockick.DELTA_T;
+
                         break;
                     case "add_player":
 
@@ -310,10 +330,17 @@ function SockickClient() {
         renderer.updateBall(ball.x, ball.y);
     }
 
-    var gameLoop = function () {
+    var gameLoop = function() {
         var dt = 1;
         ball.x += ball.vx * dt;
         ball.y += ball.vy * dt;
+
+        if (ball.ghostWalkLoopsLeft != 0) {
+            ball.ghostWalkLoopsLeft--;
+        } else {
+            ball.vx = catchUpVelocity.vx;
+            ball.vy = catchUpVelocity.vy;
+        }
     }
 
     /*
@@ -331,7 +358,9 @@ function SockickClient() {
         // Initialize network and GUI
         initNetwork();
         initGUI();
-        gameInterval = setInterval(function() {gameLoop();}, 1000/Sockick.FRAME_RATE);
+        gameInterval = setInterval(function() {
+            gameLoop();
+        }, 1000 / Sockick.FRAME_RATE);
 
         render();
     }

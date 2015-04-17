@@ -2,12 +2,13 @@
   Declared as literal object (All variables are static)	  
   =====================================================*/
 var Sockick = {
+	PLAYER_DELAY: 0,
 	HEIGHT : 594,
 	WIDTH : 916,
 	GATE_WIDTH: 180,
 	GAME_DURATION: 120,
 	PORT : 4344,
-	FRAME_RATE : 60,			// frame rate of Sockick game
+	FRAME_RATE : 60,
 	SERVER_NAME : "localhost",	// server name of Sockick game
 	//SERVER_NAME : "192.168.1.123",	// server name of Sockick game
 	NUM_OF_SESSIONS: 4,
@@ -35,7 +36,9 @@ var Sockick = {
 	RUNE_TYPE_HEAVY: 1,
 	RUNE_TYPE_REVERSE: 2,
 	RUNE_TYPE_FROZEN: 3,
-	RUNE_DIMENSION: 50
+	RUNE_DIMENSION: 50,
+
+	DELTA_T: 10,
 }
 
 // For node.js require

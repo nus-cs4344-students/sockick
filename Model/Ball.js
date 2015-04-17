@@ -8,6 +8,7 @@ function Ball() {
 	this.angularVelocity;
 	this.radius;
 	this.velocityUpdated;
+	this.ghostWalkLoopsLeft = 0;
 
 	this.reset = function() {
 		this.vx = 0;

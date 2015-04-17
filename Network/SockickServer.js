@@ -17,6 +17,7 @@ function SockickServer() {
 
     var sessions;
 
+
     /*
      * private method: unicast(socket, msg)
      *
@@ -29,6 +30,7 @@ function SockickServer() {
         socket.write(JSON.stringify(msg));
     }
 
+    
 
     /*
      * priviledge method: start()

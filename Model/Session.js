@@ -28,6 +28,8 @@ function Session(sessionId){
     this.hasRune = false;
     this.direction = new Object;
 
+    this.lastBallSpeed;
+
     var that = this;
 
     /*
@@ -119,13 +121,13 @@ function Session(sessionId){
 
         for (var i = 0; i < others.length; i++) {
             var newOtherPlayer = others[i];
-            setTimeout(that.unicast, 0, that.sockets[newOtherPlayer.pid], states);
+            setTimeout(that.unicast, newOtherPlayer.delay, that.sockets[newOtherPlayer.pid], states);
             console.log("New user added. Sending " + states.is_self + " to pid: " + newOtherPlayer.pid);
         }
 
         states = JSON.parse(statesJSON);
         states.is_self = true;
-        setTimeout(that.unicast, 0, that.sockets[newPlayer.pid], states);
+        setTimeout(that.unicast, newPlayer.delay, that.sockets[newPlayer.pid], states);
         console.log("New user added. Sending " + states.is_self + " to pid: " + newPlayer.pid);
 
         // Mark as player 1 to 4
@@ -134,6 +136,7 @@ function Session(sessionId){
             that.nextPID = 2;
         } else if (that.nextPID == 2) {
             that.p2 = that.players[conn.id];
+            that.p2.delay = Sockick.PLAYER_DELAY;
             that.nextPID = 3;
         } else if (that.nextPID == 3){
             that.p3 = that.players[conn.id];
@@ -236,6 +239,10 @@ function Session(sessionId){
                     position: {
                         x: player.gameModel.position.x, 
                         y: player.gameModel.position.y
+                    },
+                    velocity: {
+                        x: player.gameModel.velocity.x,
+                        y: player.gameModel.velocity.y
                     }
                 });
                 if (that.hasRune) {
@@ -297,7 +304,7 @@ function Session(sessionId){
                             rightscore: that.rightScore
                         };
                         //console.log("State: " + player.position.x + " " + player.position.y);
-                        setTimeout(that.unicast, 0, that.sockets[player.pid], states);
+                        setTimeout(that.unicast, player.delay, that.sockets[player.pid], states);
                         that.reStart();
                     } else {
                         if (r == 1) {
@@ -308,7 +315,7 @@ function Session(sessionId){
                                 x: that.runePositionX,
                                 y: that.runePositionY
                             };
-                            setTimeout(that.unicast, 0, that.sockets[player.pid], runeMessage);
+                            setTimeout(that.unicast, player.delay, that.sockets[player.pid], runeMessage);
                         }
                         if (that.hit) {
                             var runeHitMessage = {
@@ -317,17 +324,16 @@ function Session(sessionId){
                                 runetype: that.runeType,
                                 playerid: that.hitPlayer.pid
                             };
-                            setTimeout(that.unicast, 0, that.sockets[player.pid], runeHitMessage);
+                            setTimeout(that.unicast, player.delay, that.sockets[player.pid], runeHitMessage);
                         }
                         var states = { 
-                            type: "update",
+                            type: "update_players",
                             timestamp: currentTime,
-                            ball_position: {x: that.ball.position.x, y: that.ball.position.y},
                             timeleft: timeLeft,
                             player_positions: positionUpdates
                         };
                         //console.log("State: " + player.position.x + " " + player.position.y);
-                        setTimeout(that.unicast, 0, that.sockets[player.pid], states);
+                        setTimeout(that.unicast, player.delay, that.sockets[player.pid], states);
                     }
                     
                 } else {
@@ -337,13 +343,31 @@ function Session(sessionId){
                         leftscore: that.leftScore,
                         rightscore: that.rightScore
                     };
-                    setTimeout(that.unicast, 0, that.sockets[player.pid], states);
+                    setTimeout(that.unicast, player.delay, that.sockets[player.pid], states);
                 }
             } else{
                 console.log("player is undefined now with ID: " + socketID);
             }
         }
         that.hit = false;
+
+        // If the velocity of the ball is changed, tell players:
+        if (Math.abs(that.ball.speed - that.lastBallSpeed) > 0.001) {
+            var ballPosition = { 
+                type: "update_ball",
+                timestamp: currentTime,
+                ball_position: {x: that.ball.position.x, y: that.ball.position.y},
+                ball_velocity: {x: that.ball.velocity.x, y: that.ball.velocity.y},
+            }
+            // broadcast(ballPosition);
+            var id;
+            for (id in that.players) {
+                player = that.players[id];
+                setTimeout(that.unicast, player.delay, that.sockets[player.pid] ,ballPosition);
+            }
+        }
+        that.lastBallSpeed = that.ball.speed;
+
         that.Engine.update(that.engine, 1000/Sockick.FRAME_RATE);
     }
 
@@ -469,6 +493,15 @@ function Session(sessionId){
                 player.gameModel.friction = Sockick.PLAYER_FRICTION;
                 player.gameModel.frictionAir = Sockick.PLAYER_FRICTION_AIR;
                 that.modelStop(player);
+
+                var message = {
+                    type: "update_self",
+                    pid: player.pid,
+                    velocity: player.gameModel.velocity,
+                    position: player.gameModel.position
+                };
+                setTimeout(that.unicast, player.delay, that.sockets[player.pid], message);
+                
                 break;
             }
         }

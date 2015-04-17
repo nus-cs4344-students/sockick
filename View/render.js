@@ -9,6 +9,7 @@ function Render() {
 	this.my_id;
 	this.myLabel;
 	this.ballAnimation;
+	this.rune;
 
 	this.init = function() {
 
@@ -88,23 +89,23 @@ function Render() {
 		circleBlue.graphics.beginFill("Green").drawCircle(0, 0, 8);
 		circleBlue.x = 10;
 		circleBlue.y = 70;
-		this.scoreBoard.addChild(circleBlue);
+		// this.scoreBoard.addChild(circleBlue);
 
 		var text_refresh = new createjs.Text("Refresh", "16px Comic Sans MS", "#000000");
 		text_refresh.x = 30;
 		text_refresh.y = 58;
-		this.scoreBoard.addChild(text_refresh);
+		// this.scoreBoard.addChild(text_refresh);
 
 		// reverse
 		var circleBlue = new createjs.Shape();
 		circleBlue.graphics.beginFill("Purple").drawCircle(0, 0, 8);
 		circleBlue.x = 10;
-		circleBlue.y = 90;
+		circleBlue.y = 70;
 		this.scoreBoard.addChild(circleBlue);
 
 		var text_reverse = new createjs.Text("Reverse", "16px Comic Sans MS", "#000000");
 		text_reverse.x = 30;
-		text_reverse.y = 78;
+		text_reverse.y = 58;
 		this.scoreBoard.addChild(text_reverse);
 
 		// create player
@@ -160,6 +161,52 @@ function Render() {
 			flag.y = 230;
 		}
 		this.stage.addChild(flag);
+	}
+
+	this.addRune = function(runeType, x, y) {
+		switch (runeType){
+			case Sockick.RUNE_TYPE_HASTE://speed up
+				// speed up
+				var hasteRune = new createjs.Shape();
+				hasteRune.graphics.beginFill("Red").drawCircle(0, 0, Sockick.RUNE_DIMENSION/2);
+				hasteRune.x = x;
+				hasteRune.y = y;
+				this.rune = hasteRune;
+				break;
+			case Sockick.RUNE_TYPE_HEAVY:
+				// weight up
+				var heavyRune = new createjs.Shape();
+				heavyRune.graphics.beginFill("Yellow").drawCircle(0, 0, Sockick.RUNE_DIMENSION/2);
+				heavyRune.x = x;
+				heavyRune.y = y;
+				this.rune = heavyRune;
+				break;
+			case Sockick.RUNE_TYPE_REVERSE:
+					// reverse
+				var reverseRune = new createjs.Shape();
+				reverseRune.graphics.beginFill("Purple").drawCircle(0, 0, Sockick.RUNE_DIMENSION/2);
+				reverseRune.x = x;
+				reverseRune.y = y;
+				this.rune = reverseRune;
+				break;
+			case Sockick.RUNE_TYPE_FROZEN:
+						// freeze
+				var frozenRune = new createjs.Shape();
+				frozenRune.graphics.beginFill("DeepSkyBlue").drawCircle(0, 0, Sockick.RUNE_DIMENSION/2);
+				frozenRune.x = 10;
+				frozenRune.y = 10;
+				this.rune = frozenRune;
+				break;
+		}
+	//	this.rune = new createjs.Bitmap("Assets/flag-left.png");
+		this.rune.x = x;
+		this.rune.y = y;
+		this.stage.addChild(this.rune);
+		console.log("Rune rendered");
+	}
+
+	this.removeRune = function() {
+		this.stage.removeChild(this.rune);
 	}
 
 	this.createPlayer = function(pid, isMyself, x, y) {

@@ -28,6 +28,17 @@ function SockickServer() {
     var leftScore = 0;
     var rightScore = 0;
     var gameTicksLeft = Sockick.GAME_DURATION * Sockick.FRAME_RATE;
+    var runeType;
+    var runePositionX;
+    var runePositionY;
+    var hit = false;
+    var hitPlayer;
+    var speed;
+    var runeEffectEndTick = Sockick.GAME_DURATION * Sockick.FRAME_RATE;
+    var hasRune = false;
+    var direction;
+
+    var lastBallSpeed;
 
     /*
      * private method: broadcast(msg)
@@ -67,9 +78,15 @@ function SockickServer() {
         if (gameInterval !== undefined) {
             clearInterval(gameInterval);
             gameInterval = undefined;
+            
         }
     }
-
+    var reStart = function() {
+        reset();
+        var leftScore = 0;
+        var rightScore = 0;
+        var gameTicksLeft = Sockick.GAME_DURATION * Sockick.FRAME_RATE;
+    }
 
     /*
      * private method: newPlayer()
@@ -94,6 +111,7 @@ function SockickServer() {
 
         players[conn.id] = newPlayer; // conn.id is a complex string
         sockets[nextPID] = conn; // nextPID is an integer
+        speed[nextPID] = Sockick.PLAYER_SPEED;
 
         console.log("A new player joined with pid: " + nextPID);
 
@@ -152,7 +170,7 @@ function SockickServer() {
         // Create player object and insert into players with key = conn.id
         // @param: x, y, radius, options, maxSides
         var gameModel = Bodies.circle(startPos.x, startPos.y, Sockick.PLAYER_RADIUS, null, 25);
-        gameModel.density = 0.01;
+        gameModel.density = Sockick.PLAYER_DENSITY;
         gameModel.frictionAir = Sockick.PLAYER_FRICTION_AIR;
         gameModel.friction = Sockick.PLAYER_FRICTION;
         gameModel.restitution = 0.0;
@@ -201,6 +219,9 @@ function SockickServer() {
             }
             startGame();
         }
+        if (gameTicksLeft == runeEffectEndTick) {
+            clearRuneEffect();
+        }
 
         // Consturct the message:
         var position_updates = new Array();
@@ -214,8 +235,50 @@ function SockickServer() {
                         y: player.gameModel.position.y
                     }
                 });
+                if (hasRune) {
+                    hit = checkRuneHit(player);
+                    if (hit) {
+                        hitPlayer = player;
+                        hasRune = false;
+                        console.log("Hit by " + hitPlayer.pid);
+                        runeEffectEndTick = gameTicksLeft - Sockick.RUNE_EFFECT_DURATION * Sockick.FRAME_RATE;
+                        if (runeType == Sockick.RUNE_TYPE_HASTE) {
+                            speed[player.pid] = Sockick.PLAYER_SPEED * 2;
+                        } else if (runeType == Sockick.RUNE_TYPE_HEAVY) {
+                            hitPlayer.gameModel.density = Sockick.PLAYER_DENSITY * 2;
+                        } else if (runeType == Sockick.RUNE_TYPE_REVERSE) {
+                            if (hitPlayer.pid % 2 == 0) {
+                                direction[1] = true;
+                                direction[3] = true;
+                            } else {
+                                direction[2] = true;
+                                direction[4] = true;
+                            }
+                        } else if (runeType == Sockick.RUNE_TYPE_FROZEN) {
+                            if (hitPlayer.pid % 2 == 0) {
+                                speed[1] = 0;
+                                speed[3] = 0;
+                            } else {
+                                speed[2] = 0;
+                                speed[4] = 0;
+                            }
+                        }
+                    }
+                }
             }
         }
+
+        if (!hasRune && gameTicksLeft < runeEffectEndTick) {
+            var r = Math.floor((Math.random() * Sockick.AVERAGE_RUNE_GENERATION_TIME * Sockick.FRAME_RATE) + 1);
+            if (r == 1) {
+                hasRune = true;
+                // runeType = Math.floor(Math.random() * 3);
+                runeType = 3;
+                runePositionX = Math.floor(Math.random() * Sockick.WIDTH);
+                runePositionY = Math.floor(Math.random() * Sockick.HEIGHT);
+            }
+        }
+        
 
         //var goal_status = check_goal();
 
@@ -235,21 +298,39 @@ function SockickServer() {
                         };
                         //console.log("State: " + player.position.x + " " + player.position.y);
                         setTimeout(unicast, 0, sockets[player.pid], states);
-                        reset();
+                        reStart();
                     } else {
+                        if (r == 1) {
+                            var runeMessage = {
+                                type: "rune_create",
+                                timestamp: currentTime,
+                                runetype: runeType,
+                                x: runePositionX,
+                                y: runePositionY
+                            };
+                            setTimeout(unicast, 0, sockets[player.pid], runeMessage);
+                        }
+                        if (hit) {
+                            var runeHitMessage = {
+                                type: "rune_hit",
+                                timestamp: currentTime,
+                                runetype: runeType,
+                                playerid: hitPlayer.pid
+                            };
+                            setTimeout(unicast, 0, sockets[player.pid], runeHitMessage);
+                        }
                         var states = { 
-                            type: "update",
+                            type: "update_players",
                             timestamp: currentTime,
-                            ball_position: {x: ball.position.x, y: ball.position.y},
                             timeleft: timeLeft,
                             player_positions: position_updates
                         };
+
                         //console.log("State: " + player.position.x + " " + player.position.y);
-                        setTimeout(unicast, 0, sockets[player.pid], states);
+                        setTimeout(unicast, 0, sockets[player.pid], states);                        
                     }
                     
                 } else {
-                    
                     var states = { 
                         type: "goal",
                         timestamp: currentTime,
@@ -262,8 +343,22 @@ function SockickServer() {
                 console.log("player is undefined now with ID: " + socketID);
             }
         }
+        hit = false;
+
+        // If the velocity of the ball is changed, tell players:
+        if (Math.abs(ball.speed - lastBallSpeed) > 0.01) {
+            var ballPosition = { 
+                type: "update_ball",
+                timestamp: currentTime,
+                ball_position: {x: ball.position.x, y: ball.position.y},
+                ball_velocity: {x: ball.velocity.x, y: ball.velocity.y},
+            }
+            broadcast(ballPosition);
+            console.log("Update ball position.");
+        }
+        lastBallSpeed = ball.speed;
+
         Engine.update(engine, 1000/Sockick.FRAME_RATE);
-        // TODO: check win/lost conditions.
     }
 
     /*
@@ -339,7 +434,6 @@ function SockickServer() {
         wall_left.restitution = 1;
         wall_right.restitution = 1;
 
-
         ball = Bodies.circle(Sockick.WIDTH / 2, Sockick.HEIGHT / 2, Sockick.BALL_RADIUS, null, 25);
         ball.frictionAir = 0.0;
         ball.friction = 0.01;
@@ -360,46 +454,46 @@ function SockickServer() {
         player.gameModel.friction = 0.00;
         switch (newDirection){
             case "left":{
-                model_move_left(player.gameModel);
+                model_move_left(player);
                 break;
             }
             case "up":{
-                model_move_up(player.gameModel);
+                model_move_up(player);
                 break;
             }
             case "right":{
-                model_move_right(player.gameModel);
+                model_move_right(player);
                 break;
             }
             case "down":{
-                model_move_down(player.gameModel);
+                model_move_down(player);
                 break;
             }
             case "up_right":{
-                model_move_up(player.gameModel);
-                model_move_right(player.gameModel);
+                model_move_up(player);
+                model_move_right(player);
                 break;
             }
             case "up_left":{
-                model_move_up(player.gameModel);
-                model_move_left(player.gameModel);
+                model_move_up(player);
+                model_move_left(player);
                 break;
             }
             case "down_right":{
-                model_move_down(player.gameModel);
-                model_move_right(player.gameModel);
+                model_move_down(player);
+                model_move_right(player);
 
                 break;
             }
             case "down_left":{
-                model_move_down(player.gameModel);
-                model_move_left(player.gameModel);
+                model_move_down(player);
+                model_move_left(player);
                 break;
             }
             case "stop":{
                 player.gameModel.friction = Sockick.PLAYER_FRICTION;
                 player.gameModel.frictionAir = Sockick.PLAYER_FRICTION_AIR;
-                model_stop(player.gameModel);
+                model_stop(player);
                 break;
             }
         }
@@ -420,6 +514,37 @@ function SockickServer() {
             }
         }
         return 0;
+    }
+
+    function checkRuneHit(player) {
+        return player.gameModel.position.x + Sockick.PLAYER_RADIUS >= runePositionX - Sockick.RUNE_DIMENSION 
+            && player.gameModel.position.x - Sockick.PLAYER_RADIUS <= runePositionX + Sockick.RUNE_DIMENSION
+            && player.gameModel.position.y + Sockick.PLAYER_RADIUS >= runePositionY - Sockick.RUNE_DIMENSION
+            && player.gameModel.position.y - Sockick.PLAYER_RADIUS <= runePositionY + Sockick.RUNE_DIMENSION
+    }
+
+    function clearRuneEffect() {
+        if (runeType == Sockick.RUNE_TYPE_HASTE) {
+            speed[hitPlayer.pid] = Sockick.PLAYER_SPEED;
+        } else if (runeType == Sockick.RUNE_TYPE_HEAVY) {
+            hitPlayer.gameModel.density = Sockick.PLAYER_DENSITY;
+        } else if (runeType == Sockick.RUNE_TYPE_REVERSE) {
+            if (hitPlayer.pid % 2 == 0) {
+                direction[1] = false;
+                direction[3] = false;
+            } else {
+                direction[2] = false;
+                direction[4] = false;
+            }
+        } else if (runeType == Sockick.RUNE_TYPE_FROZEN) {
+            if (hitPlayer.pid % 2 == 0) {
+                speed[1] = Sockick.PLAYER_SPEED;
+                speed[3] = Sockick.PLAYER_SPEED;
+            } else {
+                speed[2] = Sockick.PLAYER_SPEED;
+                speed[4] = Sockick.PLAYER_SPEED;
+            }
+        }
     }
 
     function initialise_player_position(nextPID) {
@@ -446,60 +571,91 @@ function SockickServer() {
     // ======== Player Move ==========
     var deltaDistance = 10;
 
-    function model_move_left(model){
-        if (!is_model_moving_left(model)) {
-            model.position = {
-                x: model.position.x - deltaDistance - model.velocity.x, 
-                y: model.position.y};
+    function model_move_left(player){
+        if (direction[player.pid]) {
+            moveRight(player);
+        } else {
+            moveLeft(player);
+        }
+    }
+    function moveLeft(player) {
+        if (!is_model_moving_left(player)) {
+            player.gameModel.position = {
+                x: player.gameModel.position.x - speed[player.pid] - player.gameModel.velocity.x, 
+                y: player.gameModel.position.y};
         }
     }
 
-    function model_move_right(model){
-        if (!is_model_moving_right(model)) {
-            model.position = {
-                x: model.position.x + deltaDistance - model.velocity.x, 
-                y: model.position.y};
+    function model_move_right(player){
+        if (direction[player.pid]) {
+            moveLeft(player);
+        } else {
+            moveRight(player);
         }
     }
 
-    function model_move_up(model){
-        if (!is_model_moving_up(model)) {
-            model.position = {
-                x: model.position.x, 
-                y: model.position.y - deltaDistance - model.velocity.y};
+    function moveRight(player) {
+        if (!is_model_moving_right(player)) {
+            player.gameModel.position = {
+                x: player.gameModel.position.x + speed[player.pid] - player.gameModel.velocity.x, 
+                y: player.gameModel.position.y};
         }
     }
 
-    function model_move_down(model){
-        if (!is_model_moving_down(model)) {
-            model.position = {
-                x: model.position.x, 
-                y: model.position.y + deltaDistance - model.velocity.y};
+    function model_move_up(player){
+        if (direction[player.pid]) {
+            moveDown(player);
+        } else {
+            moveUp(player);
         }
     }
 
-    function model_stop(model){
-        model.position = {
-                x: model.position.x - model.velocity.x, 
-                y: model.position.y - model.velocity.y};
+    function moveUp(player) {
+        if (!is_model_moving_up(player)) {
+            player.gameModel.position = {
+                x: player.gameModel.position.x, 
+                y: player.gameModel.position.y - speed[player.pid] - player.gameModel.velocity.y};
+        }
+    }
+
+    function model_move_down(player){
+        if (direction[player.pid]) {
+            moveUp(player);
+        } else {
+            moveDown(player);
+        }
+    }
+
+    function moveDown(player) {
+        if (!is_model_moving_down(player)) {
+            player.gameModel.position = {
+                x: player.gameModel.position.x, 
+                y: player.gameModel.position.y + speed[player.pid] - player.gameModel.velocity.y};
+        }
+    }
+
+    function model_stop(player){
+        player.gameModel.position = {
+                x: player.gameModel.position.x - player.gameModel.velocity.x, 
+                y: player.gameModel.position.y - player.gameModel.velocity.y};
     }
 
     // ==== Predicates ====
 
-    function is_model_moving_left(model){
-        return model.velocity.x == -deltaDistance;
+    function is_model_moving_left(player){
+        return player.gameModel.velocity.x == -speed[player.pid];
     }
 
-    function is_model_moving_right(model){
-        return model.velocity.x == deltaDistance;
+    function is_model_moving_right(player){
+        return player.gameModel.velocity.x == speed[player.pid];
     }
 
-    function is_model_moving_up(model){
-        return model.velocity.y == -deltaDistance;
+    function is_model_moving_up(player){
+        return player.gameModel.velocity.y == -speed[player.pid];
     }
 
-    function is_model_moving_down(model){
-        return model.velocity.y == deltaDistance;
+    function is_model_moving_down(player){
+        return player.gameModel.velocity.y == speed[player.pid];
     }
 
     /*
@@ -523,6 +679,8 @@ function SockickServer() {
             gameInterval = undefined;
             players = new Object;
             sockets = new Object;
+            speed = new Object;
+            direction= new Object;
 
             initializeGameEngine();
 

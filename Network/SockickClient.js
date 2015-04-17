@@ -65,16 +65,11 @@ function SockickClient() {
                 var message = JSON.parse(e.data);
                 //console.log(message);
                 switch (message.type) {
-                    case "update":
-
+                    case "update_players":
                         var t = message.timestamp;
                         if (t < lastUpdateAt)
                             break;
                         lastUpdateAt = t;
-
-                        // update ball
-                        ball.x = message.ball_position.x;
-                        ball.y = message.ball_position.y;
 
                         // update players
                         var positions = message.player_positions;
@@ -95,6 +90,10 @@ function SockickClient() {
 
                         render();
 
+                        break;
+                    case "update_ball":
+                        ball.x = message.ball_position.x;
+                        ball.y = message.ball_position.y;
                         break;
                     case "add_player":
 
@@ -137,6 +136,17 @@ function SockickClient() {
                     case "end":
                         alert("Game ended! Final Score: " + message.leftscore + ":" + message.rightscore);
                         break;
+                    case "rune_create":
+                        renderer.removeRune();
+                        renderer.addRune(message.runetype, message.x, message.y);
+                        console.log("RuneType is " + message.runetype);
+                        console.log("X is " + message.x);
+                        console.log("Y is " + message.y);
+                        break;
+                    case "rune_hit":
+                        console.log("Rune hit by " + message.playerid);
+
+                        renderer.removeRune();
                     default:
                         //appendMessage("serverMsg", "unhandled meesage type " + message.type);
                 }

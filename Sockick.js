@@ -11,6 +11,8 @@ var Sockick = {
 	// SERVER_NAME : "localhost",	// server name of Sockick game
 	SERVER_NAME : "172.23.41.172",	// server name of Sockick game
 
+	AVERAGE_RUNE_GENERATION_TIME: 5,
+	RUNE_EFFECT_DURATION: 10,
 	// Constants:
 	PLAYER_RADIUS : 64,
 	PLAYER_WEIGHT : 140,
@@ -18,12 +20,20 @@ var Sockick = {
 	PLAYER_WIDTH: 142,
 	PLAYER_FRICTION_AIR: 0.05,
 	PLAYER_FRICTION: 0.02,
+	PLAYER_DENSITY: 0.01,
+	PLAYER_SPEED: 10,
 
 	BALL_RADIUS: 32,
 	BALL_WEIDHT: 1,
 	BALL_RESTITUTION: 0.0,
 
 	MAXIMUM_PLAYER : 4,
+
+	RUNE_TYPE_HASTE: 0,
+	RUNE_TYPE_HEAVY: 1,
+	RUNE_TYPE_REVERSE: 2,
+	RUNE_TYPE_FROZEN: 3,
+	RUNE_DIMENSION: 50
 }
 
 // For node.js require

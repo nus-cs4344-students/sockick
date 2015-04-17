@@ -10,6 +10,8 @@ var Sockick = {
 	FRAME_RATE : 60,			// frame rate of Sockick game
 	SERVER_NAME : "localhost",	// server name of Sockick game
 	//SERVER_NAME : "192.168.1.123",	// server name of Sockick game
+	NUM_OF_SESSIONS: 4,
+
 
 	AVERAGE_RUNE_GENERATION_TIME: 5,
 	RUNE_EFFECT_DURATION: 10,

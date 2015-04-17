@@ -4,7 +4,9 @@
 	<title>SocKick -- Lets rock it</title>
 	<!---inport some js file -->
 	 <script src="https://code.createjs.com/easeljs-0.8.0.min.js"></script>
+	 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 	 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+	 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 	 <link rel="stylesheet" type="text/css" href="style.css">
 	 	<script type="text/javascript">
 		var global = {}; // For node.js require
@@ -12,7 +14,7 @@
 </head>
 
 <body>
-	<div class="container">
+	<div class="container" style="display: none;" id="playground">
 		<div class="row center-block">
 			<canvas class="center-block" id="gameStage" width="916" height="594"></canvas>
 		</div>
@@ -20,6 +22,17 @@
 			<canvas class="center-block" id="scoreBoard" width="1000" height="100"></canvas>
 		</div>
 	</div>
+	<div class="modal-dialog" id="mainpage">
+        <div class="modal-content">
+            <div class="modal-header" style="text-align:center;">
+                <h1 class="modal-title" id="exampleModalLabel">Sockick!</h1>
+            </div>
+            <div class="modal-body" id="sessions">
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
 
 	<audio id = 'audio'>
 	  <source src="Assets/cheer.mp3" type="audio/mpeg">	  

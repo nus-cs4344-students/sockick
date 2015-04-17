@@ -14,6 +14,8 @@ function SockickClient() {
     var players = {};
     var myPid;
 
+    var mySessionId;
+
     // keyboard listener
     var listener = new window.keypress.Listener();
     var preAction = "";
@@ -37,7 +39,36 @@ function SockickClient() {
         var date = new Date();
         var currentTime = date.getTime();
         msg["timestamp"] = currentTime;
+        if (mySessionId !== undefined) {
+            msg["sessionid"] = mySessionId + "";
+        }
         socket.send(JSON.stringify(msg));
+    }
+
+    var displaySessions = function(sessions) {
+        for (var session in sessions) {
+            var sessionElement = "<br><br><button type='button' class='btn btn-success' id='" +
+                sessions[session]['sessionid'] + "' style='width:100%;'>" + "Join Session: " +
+                sessions[session]['sessionid'] + " (" + sessions[session]['currentsize'] +
+                " players in the session)" + "</button>";
+
+            $('#sessions').append(sessionElement);
+            // $('#' + sessions[session]['sessionid']).on("click", function (e) {
+            //     sendToServer({
+            //         type: "join_session",
+            //         sessionid: sessions[session]['sessionid']
+            //     });
+            // });
+
+            (function (sn) {
+                $('#' + sn).on("click", function (e) {
+                    sendToServer({
+                        type: "join_session",
+                        sessionid: sn
+                    });
+                });
+            }(sessions[session]['sessionid']))
+        }
     }
 
     /*
@@ -52,8 +83,25 @@ function SockickClient() {
         socket = new SockJS("http://" + Sockick.SERVER_NAME + ":" + Sockick.PORT + "/sockick");
         socket.onmessage = function(e) {
                 var message = JSON.parse(e.data);
-                //console.log(message);
                 switch (message.type) {
+                    case "sessions_info":
+                        var sessions = message.sessions;
+                        console.log("Session information received");
+                        console.log(sessions);
+                        displaySessions(sessions);
+                        break;
+                    case "joinresult":
+                        var joinResult = message.result;
+                        if (joinResult) {
+                            $('#mainpage').css('display','none');
+                            $('#playground').css('display','block');
+                            mySessionId = message.sessionid;
+                            initGUI();
+                            render();
+                        } else {
+                            alert(message.reason);
+                        }
+                        break;
                     case "update":
 
                         var t = message.timestamp;
@@ -137,6 +185,10 @@ function SockickClient() {
                         console.log("Rune hit by " + message.playerid);
 
                         renderer.removeRune();
+                        break;
+                    case "message":
+                        console.log(message.content);
+                        break;
                     default:
                         //appendMessage("serverMsg", "unhandled meesage type " + message.type);
                 }
@@ -282,8 +334,8 @@ function SockickClient() {
         // renderer.createPlayer(1, true);
         // Initialize network and GUI
         initNetwork();
-        initGUI();
-        render();
+        // initGUI();
+        // render();
     }
 }
 

@@ -38,6 +38,8 @@ function SockickServer() {
     var hasRune = false;
     var direction;
 
+    var lastBallSpeed;
+
     /*
      * private method: broadcast(msg)
      *
@@ -318,14 +320,14 @@ function SockickServer() {
                             setTimeout(unicast, 0, sockets[player.pid], runeHitMessage);
                         }
                         var states = { 
-                            type: "update",
+                            type: "update_players",
                             timestamp: currentTime,
-                            ball_position: {x: ball.position.x, y: ball.position.y},
                             timeleft: timeLeft,
                             player_positions: position_updates
                         };
+
                         //console.log("State: " + player.position.x + " " + player.position.y);
-                        setTimeout(unicast, 0, sockets[player.pid], states);
+                        setTimeout(unicast, 0, sockets[player.pid], states);                        
                     }
                     
                 } else {
@@ -342,8 +344,21 @@ function SockickServer() {
             }
         }
         hit = false;
+
+        // If the velocity of the ball is changed, tell players:
+        if (Math.abs(ball.speed - lastBallSpeed) > 0.01) {
+            var ballPosition = { 
+                type: "update_ball",
+                timestamp: currentTime,
+                ball_position: {x: ball.position.x, y: ball.position.y},
+                ball_velocity: {x: ball.velocity.x, y: ball.velocity.y},
+            }
+            broadcast(ballPosition);
+            console.log("Update ball position.");
+        }
+        lastBallSpeed = ball.speed;
+
         Engine.update(engine, 1000/Sockick.FRAME_RATE);
-        // TODO: check win/lost conditions.
     }
 
     /*
@@ -418,7 +433,6 @@ function SockickServer() {
         wall_bottom.restitution = 1;
         wall_left.restitution = 1;
         wall_right.restitution = 1;
-
 
         ball = Bodies.circle(Sockick.WIDTH / 2, Sockick.HEIGHT / 2, Sockick.BALL_RADIUS, null, 25);
         ball.frictionAir = 0.0;

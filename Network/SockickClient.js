@@ -54,16 +54,11 @@ function SockickClient() {
                 var message = JSON.parse(e.data);
                 //console.log(message);
                 switch (message.type) {
-                    case "update":
-
+                    case "update_players":
                         var t = message.timestamp;
                         if (t < lastUpdateAt)
                             break;
                         lastUpdateAt = t;
-
-                        // update ball
-                        ball.x = message.ball_position.x;
-                        ball.y = message.ball_position.y;
 
                         // update players
                         var positions = message.player_positions;
@@ -84,6 +79,10 @@ function SockickClient() {
 
                         render();
 
+                        break;
+                    case "update_ball":
+                        ball.x = message.ball_position.x;
+                        ball.y = message.ball_position.y;
                         break;
                     case "add_player":
 

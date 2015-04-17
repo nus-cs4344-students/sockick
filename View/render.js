@@ -53,36 +53,36 @@ function Render() {
 		circleBlue.graphics.beginFill("DeepSkyBlue").drawCircle(0, 0, 8);
 		circleBlue.x = 10;
 		circleBlue.y = 10;
-		// this.scoreBoard.addChild(circleBlue);
+		this.scoreBoard.addChild(circleBlue);
 
 		var text_freeze = new createjs.Text("Freeze", "16px Comic Sans MS", "#000000");
 		text_freeze.x = 30;
 		text_freeze.y = -2;
-		// this.scoreBoard.addChild(text_freeze);
+		this.scoreBoard.addChild(text_freeze);
 
 		// speed up
 		var circleBlue = new createjs.Shape();
 		circleBlue.graphics.beginFill("Red").drawCircle(0, 0, 8);
 		circleBlue.x = 10;
 		circleBlue.y = 30;
-		// this.scoreBoard.addChild(circleBlue);
+		this.scoreBoard.addChild(circleBlue);
 
 		var text_speedup = new createjs.Text("Speed Up", "16px Comic Sans MS", "#000000");
 		text_speedup.x = 30;
 		text_speedup.y = 18;
-		// this.scoreBoard.addChild(text_speedup);
+		this.scoreBoard.addChild(text_speedup);
 
 		// weight up
 		var circleBlue = new createjs.Shape();
 		circleBlue.graphics.beginFill("Yellow").drawCircle(0, 0, 8);
 		circleBlue.x = 10;
 		circleBlue.y = 50;
-		// this.scoreBoard.addChild(circleBlue);
+		this.scoreBoard.addChild(circleBlue);
 
 		var text_weightup = new createjs.Text("Weight Up", "16px Comic Sans MS", "#000000");
 		text_weightup.x = 30;
 		text_weightup.y = 38;
-		// this.scoreBoard.addChild(text_weightup);
+		this.scoreBoard.addChild(text_weightup);
 
 		// skill refresh
 		var circleBlue = new createjs.Shape();
@@ -100,13 +100,13 @@ function Render() {
 		var circleBlue = new createjs.Shape();
 		circleBlue.graphics.beginFill("Purple").drawCircle(0, 0, 8);
 		circleBlue.x = 10;
-		circleBlue.y = 90;
-		// this.scoreBoard.addChild(circleBlue);
+		circleBlue.y = 70;
+		this.scoreBoard.addChild(circleBlue);
 
 		var text_reverse = new createjs.Text("Reverse", "16px Comic Sans MS", "#000000");
 		text_reverse.x = 30;
-		text_reverse.y = 78;
-		// this.scoreBoard.addChild(text_reverse);
+		text_reverse.y = 58;
+		this.scoreBoard.addChild(text_reverse);
 
 		// create player
 		// this.createPlayer();
@@ -164,7 +164,41 @@ function Render() {
 	}
 
 	this.addRune = function(runeType, x, y) {
-		this.rune = new createjs.Bitmap("Assets/flag-left.png");
+		switch (runeType){
+			case Sockick.RUNE_TYPE_HASTE://speed up
+				// speed up
+				var hasteRune = new createjs.Shape();
+				hasteRune.graphics.beginFill("Red").drawCircle(0, 0, Sockick.RUNE_DIMENSION/2);
+				hasteRune.x = x;
+				hasteRune.y = y;
+				this.rune = hasteRune;
+				break;
+			case Sockick.RUNE_TYPE_HEAVY:
+				// weight up
+				var heavyRune = new createjs.Shape();
+				heavyRune.graphics.beginFill("Yellow").drawCircle(0, 0, Sockick.RUNE_DIMENSION/2);
+				heavyRune.x = x;
+				heavyRune.y = y;
+				this.rune = heavyRune;
+				break;
+			case Sockick.RUNE_TYPE_REVERSE:
+					// reverse
+				var reverseRune = new createjs.Shape();
+				reverseRune.graphics.beginFill("Purple").drawCircle(0, 0, Sockick.RUNE_DIMENSION/2);
+				reverseRune.x = x;
+				reverseRune.y = y;
+				this.rune = reverseRune;
+				break;
+			case Sockick.RUNE_TYPE_FROZEN:
+						// freeze
+				var frozenRune = new createjs.Shape();
+				frozenRune.graphics.beginFill("DeepSkyBlue").drawCircle(0, 0, Sockick.RUNE_DIMENSION/2);
+				frozenRune.x = 10;
+				frozenRune.y = 10;
+				this.rune = frozenRune;
+				break;
+		}
+	//	this.rune = new createjs.Bitmap("Assets/flag-left.png");
 		this.rune.x = x;
 		this.rune.y = y;
 		this.stage.addChild(this.rune);

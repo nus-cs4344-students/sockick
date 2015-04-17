@@ -14,7 +14,7 @@ function SockickClient() {
     var socket; // socket used to connect to server 
     var playArea; // HTML5 canvas game window 
     var ball; // ball object in game 
-
+    var gameInterval;
     var lastUpdateAt = 0; // timestamp of last recv update
 
 
@@ -94,6 +94,8 @@ function SockickClient() {
                     case "update_ball":
                         ball.x = message.ball_position.x;
                         ball.y = message.ball_position.y;
+                        ball.vx = message.ball_velocity.x;
+                        ball.vy = message.ball_velocity.y;
                         break;
                     case "add_player":
 
@@ -308,6 +310,12 @@ function SockickClient() {
         renderer.updateBall(ball.x, ball.y);
     }
 
+    var gameLoop = function () {
+        var dt = 1;
+        ball.x += ball.vx * dt;
+        ball.y += ball.vy * dt;
+    }
+
     /*
      * priviledge method: start
      *
@@ -323,6 +331,8 @@ function SockickClient() {
         // Initialize network and GUI
         initNetwork();
         initGUI();
+        gameInterval = setInterval(function() {gameLoop();}, 1000/Sockick.FRAME_RATE);
+
         render();
     }
 }

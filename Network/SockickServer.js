@@ -346,7 +346,7 @@ function SockickServer() {
         hit = false;
 
         // If the velocity of the ball is changed, tell players:
-        if (Math.abs(ball.speed - lastBallSpeed) > 0.01) {
+        if (Math.abs(ball.speed - lastBallSpeed) > 0.001) {
             var ballPosition = { 
                 type: "update_ball",
                 timestamp: currentTime,
@@ -354,7 +354,6 @@ function SockickServer() {
                 ball_velocity: {x: ball.velocity.x, y: ball.velocity.y},
             }
             broadcast(ballPosition);
-            console.log("Update ball position.");
         }
         lastBallSpeed = ball.speed;
 

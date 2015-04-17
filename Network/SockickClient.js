@@ -39,6 +39,10 @@ function SockickClient() {
 
     // for mobile control
     var accel;
+    var isMobile;
+
+    var currentRune;
+    var hasRune = false;
 
     /*
      * private method: sendToServer(msg)
@@ -68,6 +72,14 @@ function SockickClient() {
                 var message = JSON.parse(e.data);
                 //console.log(message);
                 switch (message.type) {
+                    case "update_self":
+                        players[message.pid].x = message.position.x;
+                        players[message.pid].y = message.position.y;
+
+                        players[message.pid].vx = message.velocity.x;
+                        players[message.pid].vy = message.velocity.y;
+                        console.log("myself");
+                        break;
                     case "update_players":
                         var t = message.timestamp;
                         if (t < lastUpdateAt)
@@ -78,20 +90,18 @@ function SockickClient() {
                         var positions = message.player_positions;
                         var id;
                         for (id in positions) {
-
                             var p = positions[id];
-                            if (players[p.pid] !== undefined) {
+                            if (players[p.pid] !== undefined && p.pid !== myPid) {
                                 players[p.pid].x = p.position.x;
                                 players[p.pid].y = p.position.y;
-                            }
 
-                            if (p.pid === myPid) {
-                                //console.log("my position: " + p.position.x + ", " + p.position.y);
+                                players[p.pid].vx = p.velocity.x;
+                                players[p.pid].vy = p.velocity.y;
                             }
                         }
                         renderer.setTimeLeft(message.timeleft);
 
-                        render();
+
 
                         break;
                     case "update_ball":
@@ -107,7 +117,7 @@ function SockickClient() {
                         var delay = (currentTime - message.timestamp) / (1000 / Sockick.FRAME_RATE);
                         var finalX = message.ball_position.x + message.ball_velocity.x * (delay + Sockick.DELTA_T);
                         var finalY = message.ball_position.y + message.ball_velocity.y * (delay + Sockick.DELTA_T);
-                        console.log(finalX,finalY);
+                        console.log(finalX, finalY);
                         catchUpVelocity = {
                             vx: message.ball_velocity.x,
                             vy: message.ball_velocity.y
@@ -161,13 +171,19 @@ function SockickClient() {
                     case "rune_create":
                         renderer.removeRune();
                         renderer.addRune(message.runetype, message.x, message.y);
+                        currentRune = message.runetype;
                         console.log("RuneType is " + message.runetype);
                         console.log("X is " + message.x);
                         console.log("Y is " + message.y);
                         break;
                     case "rune_hit":
                         console.log("Rune hit by " + message.playerid);
-
+                        if ((currentRune == Sockick.RUNE_TYPE_HASTE && message.playerid == myPid) || (currentRune != Sockick.RUNE_TYPE_HASTE && message.playerid != myPid)) {
+                            hasRune = true;
+                            setTimeout(function() {
+                                hasRune = false;
+                            }, Sockick.RUNE_EFFECT_DURATION * 1000)
+                        }
                         renderer.removeRune();
                     default:
                         //appendMessage("serverMsg", "unhandled meesage type " + message.type);
@@ -224,11 +240,7 @@ function SockickClient() {
             }
         }];
         listener.register_many(keycombo);
-        if (!window.mobileAndTabletcheck()) {
-            setInterval(sendKeyControll, 50);
-        } else {
-            setInterval(sendTiltControll, 50);
-        }
+
     }
 
     /**
@@ -239,7 +251,6 @@ function SockickClient() {
     var sendKeyControll = function() {
         var action = "stop";
         // console.log(pressedKeys);
-
         if (pressedKeys.A && pressedKeys.W) {
             action = "up_left";
         } else if (pressedKeys.A && pressedKeys.S) {
@@ -266,7 +277,6 @@ function SockickClient() {
             });
             preAction = action;
         }
-
     }
 
     /**
@@ -332,14 +342,104 @@ function SockickClient() {
 
     var gameLoop = function() {
         var dt = 1;
-        ball.x += ball.vx * dt;
-        ball.y += ball.vy * dt;
+        if (!isAtBoundary() || ball.ghostWalkLoopsLeft !== 0) {
+            ball.x += ball.vx * dt;
+            ball.y += ball.vy * dt;
 
-        if (ball.ghostWalkLoopsLeft != 0) {
-            ball.ghostWalkLoopsLeft--;
+            if (ball.ghostWalkLoopsLeft != 0) {
+                ball.ghostWalkLoopsLeft--;
+            } else {
+                ball.vx = catchUpVelocity.vx;
+                ball.vy = catchUpVelocity.vy;
+            }
         } else {
-            ball.vx = catchUpVelocity.vx;
-            ball.vy = catchUpVelocity.vy;
+            ball.vx = 0;
+            ball.vy = 0;
+            ball.ghostWalkLoopsLeft = 0;
+        }
+
+        if (!isMobile) {
+            sendKeyControll();
+        } else {
+            sendTiltControll();
+        }
+        var myVelocity;
+        var shift = Sockick.PLAYER_SPEED;
+
+        if (!isPlayerAtBoundary()) {
+            if (hasRune) {
+                switch (currentRune) {
+                    case Sockick.RUNE_TYPE_HASTE:
+                        shift = Sockick.PLAYER_SPEED * 2;
+                        break;
+                    case Sockick.RUNE_TYPE_REVERSE:
+                        shift = -Sockick.PLAYER_SPEED;
+                        break;
+                    case Sockick.RUNE_TYPE_FROZEN:
+                        shift = 0;
+                        break;
+
+                }
+            }
+
+            var myself = players[myPid];
+            // (myself.vx === 0 && myself.vy === 0) ? Sockick.PLAYER_SPEED : Math.max(myself.vx, myself.vy);
+            switch (preAction) {
+                case "up_left":
+                    myself.x -= shift;
+                    myself.y -= shift;
+                    break;
+                case "down_left":
+                    myself.x -= shift;
+                    myself.y += shift;
+                    break;
+                case "up_right":
+                    myself.x += shift;
+                    myself.y -= shift;
+                    break;
+                case "down_right":
+                    myself.x += shift;
+                    myself.y += shift;
+                    break;
+                case "left":
+                    myself.x -= shift;
+                    // myself.y += myself.vy;
+                    break;
+                case "up":
+                    // myself.x += myself.vx;
+                    myself.y -= shift;
+                    break;
+                case "down":
+                    // myself.x += myself.vx;
+                    myself.y += shift;
+                    break;
+                case "right":
+                    myself.x += shift;
+                    // myself.y += myself.vy;
+                    break;
+                case "stop":
+                    break;
+            }
+        }
+
+
+        render();
+    }
+
+    var isAtBoundary = function() {
+        if (ball.x <= Sockick.BALL_RADIUS || ball.x >= Sockick.WIDTH - Sockick.BALL_RADIUS || ball.y <= Sockick.BALL_RADIUS || ball.y >= Sockick.HEIGHT - Sockick.BALL_RADIUS) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    var isPlayerAtBoundary = function() {
+        var me = players[myPid];
+        if (me.x <= Sockick.PLAYER_RADIUS || me.x >= Sockick.WIDTH - Sockick.PLAYER_RADIUS || me.y <= Sockick.PLAYER_RADIUS || me.y >= Sockick.HEIGHT - Sockick.PLAYER_RADIUS) {
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -354,6 +454,7 @@ function SockickClient() {
         // Initialize game objects
         ball = new Ball();
         accel = new Accel();
+        isMobile = window.mobileAndTabletcheck();
         renderer.init();
         // Initialize network and GUI
         initNetwork();

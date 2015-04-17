@@ -282,7 +282,7 @@ function Render() {
 
 		var heightOffset = 60;
 		var dx = x - (Sockick.PLAYER_WIDTH / 2) - this.players[pid].x;
-		var dy = y - Sockick.PLAYER_HEIGHT + heightOffset - this.players[pid].y;
+		var dy = y - 82 - this.players[pid].y;
 		if(Math.abs(dx) < 1)
 			dx = 0;
 		if(Math.abs(dy) < 1)
@@ -353,7 +353,7 @@ function Render() {
 		}
 	}
 		this.players[pid].x = x - (Sockick.PLAYER_WIDTH / 2);
-		this.players[pid].y = y - Sockick.PLAYER_HEIGHT + heightOffset;
+		this.players[pid].y = y - 82;
 		// this.players[pid].setTransform(x,y);
 		// console.log(this.my_id);
 		if (pid == this.my_id) {

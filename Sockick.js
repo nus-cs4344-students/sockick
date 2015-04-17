@@ -2,7 +2,7 @@
   Declared as literal object (All variables are static)	  
   =====================================================*/
 var Sockick = {
-	PLAYER_DELAY: 500,
+	PLAYER_DELAY: 0,
 	HEIGHT : 594,
 	WIDTH : 916,
 	GATE_WIDTH: 180,

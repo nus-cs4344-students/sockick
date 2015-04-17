@@ -234,6 +234,10 @@ function SockickServer() {
                     position: {
                         x: player.gameModel.position.x, 
                         y: player.gameModel.position.y
+                    },
+                    velocity: {
+                        x: player.gameModel.velocity.x,
+                        y: player.gameModel.velocity.y
                     }
                 });
                 if (hasRune) {
@@ -498,6 +502,15 @@ function SockickServer() {
                 player.gameModel.friction = Sockick.PLAYER_FRICTION;
                 player.gameModel.frictionAir = Sockick.PLAYER_FRICTION_AIR;
                 model_stop(player);
+
+                var message = {
+                    type: "update_self",
+                    pid: player.pid,
+                    velocity: player.gameModel.velocity,
+                    position: player.gameModel.position
+                };
+                setTimeout(unicast, player.delay, sockets[player.pid], message);
+                
                 break;
             }
         }

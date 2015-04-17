@@ -123,7 +123,7 @@ function SockickClient() {
                             alert(message.reason);
                         }
                         break;
-                    case "update_self":
+                    case "update_dsadaself":
                         players[message.pid].x = message.position.x;
                         players[message.pid].y = message.position.y;
 
@@ -142,7 +142,7 @@ function SockickClient() {
                         var id;
                         for (id in positions) {
                             var p = positions[id];
-                            if (players[p.pid] !== undefined && p.pid !== myPid) {
+                            if (players[p.pid] !== undefined) {
                                 players[p.pid].x = p.position.x;
                                 players[p.pid].y = p.position.y;
 
@@ -166,6 +166,7 @@ function SockickClient() {
                         var date = new Date();
                         var currentTime = date.getTime();
                         var delay = (currentTime - message.timestamp) / (1000 / Sockick.FRAME_RATE);
+                        console.log("Delay is " + delay);
                         var finalX = message.ball_position.x + message.ball_velocity.x * (delay + Sockick.DELTA_T);
                         var finalY = message.ball_position.y + message.ball_velocity.y * (delay + Sockick.DELTA_T);
                         console.log(finalX, finalY);

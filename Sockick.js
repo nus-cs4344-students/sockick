@@ -10,7 +10,7 @@ var Sockick = {
 	PORT : 4344,
 	FRAME_RATE : 60,
 	SERVER_NAME : "localhost",	// server name of Sockick game
-	//SERVER_NAME : "192.168.1.123",	// server name of Sockick game
+	// SERVER_NAME : "172.23.58.41",	// server name of Sockick game
 	NUM_OF_SESSIONS: 4,
 
 

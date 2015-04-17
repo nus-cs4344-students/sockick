@@ -685,8 +685,6 @@ function Session(sessionId){
     this.start = function() {
         that.initializeGameEngine();
     }
-
-
 }
 
 global.Session = Session;

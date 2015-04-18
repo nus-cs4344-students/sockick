@@ -238,6 +238,9 @@ function Render() {
             case Sockick.RUNE_TYPE_FROZEN:
                 color = "bule";
                 break;
+            case Sockick.RUNE_TYPE_HEAVY:
+            	color = "yellow";
+            	break;
 
         }
         background.style.backgroundColor = color;

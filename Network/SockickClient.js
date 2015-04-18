@@ -233,6 +233,7 @@ function SockickClient() {
                         if ((currentRune == Sockick.RUNE_TYPE_HASTE && message.playerid == myPid) || (currentRune != Sockick.RUNE_TYPE_HASTE && message.playerid != myPid)) {
                             hasRune = true;
                             setTimeout(function() {
+                                renderer.removeRuneNotice();
                                 hasRune = false;
                             }, Sockick.RUNE_EFFECT_DURATION * 1000)
                         }
@@ -424,6 +425,7 @@ function SockickClient() {
 
         if (!isPlayerAtBoundary()) {
             if (hasRune) {
+                renderer.runeNotice(currentRune);
                 switch (currentRune) {
                     case Sockick.RUNE_TYPE_HASTE:
                         shift = Sockick.PLAYER_SPEED * 2;

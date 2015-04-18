@@ -209,6 +209,32 @@ function Render() {
 		this.stage.removeChild(this.rune);
 	}
 
+	this.removeRuneNotice = function(){
+		var background = document.getElementById("background");
+		 background.style.backgroundColor = "white";
+	}
+
+	//notify the player that he/she is affected by a rune
+	this.runeNotice = function(runeType){
+		var background = document.getElementById("background");
+		var color = "white";
+		switch (runeType) {
+            case Sockick.RUNE_TYPE_HASTE:
+                color = "red";
+                break;
+            case Sockick.RUNE_TYPE_REVERSE:
+                color = "purple";
+                break;
+            case Sockick.RUNE_TYPE_FROZEN:
+                color = "bule";
+                break;
+
+        }
+        background.style.backgroundColor = color;
+	}
+
+
+
 	this.createPlayer = function(pid, isMyself, x, y) {
 		var imagePath;
 		if (x < this.stage.canvas.width/2)

@@ -218,6 +218,7 @@ function SockickClient() {
                         renderer.setScore(message.leftscore, message.rightscore);
                         break;
                     case "end":
+                        renderer.stopRender();
                         alert("Game ended! Final Score: " + message.leftscore + ":" + message.rightscore);
                         break;
                     case "rune_create":

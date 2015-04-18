@@ -10,6 +10,7 @@ function Render() {
 	this.myLabel;
 	this.ballAnimation;
 	this.rune;
+	this.isEnd;
 
 	this.init = function() {
 
@@ -174,6 +175,9 @@ function Render() {
 	}
 
 	this.addRune = function(runeType, x, y) {
+		if(this.isEnd)
+			return;
+
 		switch (runeType){
 			case Sockick.RUNE_TYPE_HASTE://speed up
 				// speed up
@@ -215,13 +219,20 @@ function Render() {
 		console.log("Rune rendered");
 	}
 
+
+	this.stopRender = function(){
+		this.isEnd = true;
+		var audio = document.getElementById("backgroundMusic");
+		audio.pause();
+	}
+
 	this.removeRune = function() {
 		this.stage.removeChild(this.rune);
 	}
 
 	this.removeRuneNotice = function(){
 		var background = document.getElementById("background");
-		 background.style.backgroundColor = "white";
+		background.style.backgroundColor = "white";
 	}
 
 	//notify the player that he/she is affected by a rune
@@ -299,6 +310,7 @@ function Render() {
 			this.stage.addChild(this.meArrow);
 			this.addFlag(x, y);
 			this.addBackgroundSound();
+			this.isEnd = false;
 		}
 	}
 	this.createBall = function() {

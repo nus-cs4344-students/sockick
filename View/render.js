@@ -121,6 +121,11 @@ function Render() {
 
 	}
 
+	this.addBackgroundSound = function(){
+		var audio = document.getElementById("backgroundMusic");
+		audio.play();
+	}
+
 	this.addGoalSound = function(){
 		var audio = document.getElementById('audio');
 		audio.play();
@@ -148,6 +153,11 @@ function Render() {
 		renderer.stage.update();
 		renderer.scoreBoard.update();
 	}
+
+
+
+
+
 
 	this.addFlag = function(x, y){
 		if(x > this.stage.canvas.width/2){
@@ -285,6 +295,7 @@ function Render() {
 			this.meArrow.y = playerAnimation.y - 50;
 			this.stage.addChild(this.meArrow);
 			this.addFlag(x, y);
+			this.addBackgroundSound();
 		}
 	}
 	this.createBall = function() {
